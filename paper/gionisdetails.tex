@@ -1,0 +1,511 @@
+\subsection{Overview of the Approach by
+  \texorpdfstring{\citeauthor{GionisMMT07}}{Gionis et al.}}
+
+Let $\dataset$ be a 0--1 matrix with $\rowsnum$ rows and $\colsnum$ columns that
+represents our transactional dataset. We view the rows of the dataset as
+transactions in a database, and the columns are items. The values 0 and 1
+correspond to the absence and presence of an item in the transaction,
+respectively. The sum of the $i$th row of $\dataset$, $i = 1, \dots, \rowsnum$,
+is denoted as $\rowsum{i}$ and the sum of the $j$th column of $\dataset$, $j =
+1, \dots, \colsnum$, is denoted as $\colsum{j}$. We are interested in assessing
+the statistical significance of the result obtained by a frequent itemset
+mining algorithm $\miningalgo$ on our dataset $\dataset$. Let $\miningalgo(\dataset)$
+denote the result of the algorithm.
+
+To determine the statical significance of the result $\miningalgo(\dataset)$, the
+approach by \citet{GionisMMT07} generates $k$ datasets $\dataset_1, \dots,
+\dataset_k$, such that each $\dataset_t$, $t = 1, \dots, k$, is an $\rowsnum
+\times \colsnum$ 0--1 matrix that preserves the row and column sums of the
+original matrix $\dataset$. Each dataset $\dataset_t$ is assumed to be a
+uniform and independent sample from the space of all $\rowsnum \times \colsnum$
+0--1 matrices with the same row and column sums. Algorithm $\miningalgo$ is executed
+on each sampled dataset $\dataset_t$, yielding results $\result_t =
+\miningalgo(\dataset_t)$ for $t = 1, \dots, k$. The significance of the result
+$\miningalgo(\dataset)$ is tested by comparing it to the set $\results = \{\result_1,
+\dots, \result_k\}$.  If $\miningalgo(\dataset)$ deviates significantly from the
+values in $\results$, then the result $\miningalgo(\dataset)$ is considered
+statistically significant. Otherwise, $\miningalgo(\dataset)$ is considered not
+statistically significant.
+
+\subsection{Sampling Datasets}
+
+\subsubsection{Foundations}
+
+The main task of the above approach is sampling/generating datasets from the
+distribution of datasets with the same row and column margins as the original
+dataset. To help formulate methods for this task, \citet{GionisMMT07}
+introduce an alternative representation of the matrix $\dataset$: a bipartite
+graph $\graph_\dataset = (\rows, \cols, \edges)$, where vertex $i \in \rows$
+corresponds to the $i$th row of $\dataset$, vertex $j \in \cols$ corresponds to
+the $j$th column of $\dataset$, and edge $(i, j) \in \edges$ if and only if
+$\dataset(i, j) = 1$ for all $i$ and $j$. As such, the degrees for vertices $i
+\in \rows$ and $j \in \cols$ are $\rowsum{i}$ and $\colsum{j}$, respectively.
+
+In order to sample a new dataset, start from the graph $\graph_\dataset$ that
+corresponds to our dataset $\dataset$ and perform a \textit{local swap} that
+maintains the row and column margins (i.e., the degrees of vertices in $\rows$
+and $\cols$, respectively). After many of these swaps are performed, the
+resulting graph can be considered randomly sampled from the stationary
+distribution.
+
+\citet{GionisMMT07} define a local swap in a bipartite graph $\graph = (\rows,
+\cols, \edges)$ by four vertices $i$, $j$, $k$, and $l$ of $\graph$, such that
+$i, k \in \rows$, $j, l \in \cols$, $(i, j), (k, l) \in \edges$, and $(i, l),
+(k, j) \notin \edges$. A new graph $\graphadj = (\rows, \cols, \edgesnew)$ is
+then created by updating the edges of $\graph = (\rows, \cols, \edges)$ as
+follows.
+\[
+	\edgesnew \leftarrow \edges \setminus \{(i, j), (k, l)\} \cup \{(i, l), (k,
+	j)\}
+\]
+
+More formally, a local swap is a step on a Markov chain $\markchain = \{\states,
+\transitions\}$, where the state space $\states$ is the set of all graphs and
+$\transitions$ is the set of all transitions, i.e., all pairs of graphs
+$(\graph, \graphadj)$ such that it is possible to generate the adjacent graph
+$\graphadj$ from $\graph$ (or vice versa) by a single swap.
+
+\subsubsection{The Naive Method}
+
+A naive implementation of the above Markov approach is described in
+Algorithm~\ref{algo:naive}. (The algorithm is taken from \citet{GionisMMT07}
+with some slight modifications in notation.)
+
+\begin{algorithm}
+	\caption{\naive}\label{algo:naive}
+	\DontPrintSemicolon{}
+	\KwIn{Graph $\graph_\dataset$, number of random walk steps $\steps$}
+	\KwOut{Graph $\graph$ with same degree sequences as $\graph_\dataset$}
+
+	$\graph \leftarrow \graph_\dataset$\;
+	\While{$\steps > 0$}{
+		$\graphadj \leftarrow \findadj(\graph)$\;
+		$\graph \leftarrow \graphadj$\;
+		$\steps \leftarrow \steps - 1$\;
+	}
+	\Return{$\graph$}
+\end{algorithm}
+
+In order to select a pair of edges in $\graph$ to generate an adjacent graph
+$\graphadj$ such that $(\graph, \graphadj) \in \transitions$,
+\citet{GionisMMT07} use the \findadj{} algorithm detailed in
+Algorithm~\ref{algo:findadj}. For a given graph $\graph$, \findadj{} obtains an
+adjacent graph $\graphadj$ uniformly at random among all adjacent graphs. This
+is because there exists a one-to-one mapping between the set of adjacent graphs
+and the set of swappable pairs of edges, and \findadj{} samples uniformly at
+random from the set of swappable pairs.
+
+\begin{algorithm}
+	\caption{\findadj}\label{algo:findadj}
+	\DontPrintSemicolon{}
+	\KwIn{Graph $\graph$}
+	\KwOut{Graph $\graphadj$ such that $(\graph, \graphadj) \in \transitions$}
+
+	\Repeat{$(i, l), (k, j) \notin \edges(\graph)$}{
+		Select edges $(i, j), (k, l) \in \edges(\graph)$ uniformly at random\;
+	}
+	$\edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+	\cup \{(i, l), (k, j)\}$\;
+	\Return{$\graphadj$}
+\end{algorithm}
+
+For the Markov chain to sample graphs uniformly at random from $\states$, the
+following conditions must hold:
+
+\begin{enumerate}
+	\item $\states$ is connected under the transitions of $\markchain$;
+	\item $\markchain$ has a uniform stationary distribution; and
+	\item Starting from $\graph_\dataset$, a sufficiently large number of swaps
+		needs to be performed so that the chain \textit{mixes}.
+\end{enumerate}
+
+(1) \textit{Connectedness}. Since one can move from any state of the Markov
+chain to any other state via some sequence of swaps, the chain is connected.
+
+(2) \textit{Uniformity}. For each graph (state) $\graph \in \states$, we define
+$\degree{\graph}$, the \textit{degree} of the Markov chain $\markchain$ at
+$\graph$, to be the number of adjacent graphs (states) $\graphadj$ such that
+$(\graph, \graphadj) \in \transitions$. Further, note that the $\markchain$ is
+reversible. It is also well known that the stationary distribution of a
+reversible chain is proportional to the degree at each state. Thus, all states
+of the chain must have the same degree to obtain a uniform distribution. It can
+be shown that that this is not true in general for the Markov chain $\markchain$.
+As such, the \naive{} algorithm does not converge to a uniform distribution.
+
+(3) \textit{Mixing time}. We will assume that the number of swaps that are
+performed is sufficiently large such that the chain mixes, as this is not the
+object of study here.
+
+\subsubsection{The Self-Loop Method}
+
+\citet{GionisMMT07} provide two methods to correct the \naive{} method such
+that we get a uniform stationary distribution. One way to fix the \naive{}
+method is by adding self-loops as described in Algorithm~\ref{algo:selfloop}.
+The \selfloop{} method works similarly to the \naive{} method by sampling pairs
+of edges until it finds a swappable pair. The difference between the two
+methods lies in the fact that unlike the \naive{} method, in the \selfloop{}
+method, all steps are counted and decrease the counter. That is, nonswappable
+pairs of edges are counted as self-loops. Since self-loops are counted, the
+degree of each $\graph \in \states$ becomes fixed and equal to $|\edges|^2$. As
+such, the \selfloop{} method converges to a uniform distribution.
+
+\begin{algorithm}
+	\caption{\selfloop}\label{algo:selfloop}
+	\DontPrintSemicolon{}
+	\KwIn{Graph $\graph_\dataset$, number of random walk steps $\steps$}
+	\KwOut{Graph $\graph$ with same degree sequences as $\graph_\dataset$}
+
+	$\graph \leftarrow \graph_\dataset$\;
+	\While{$\steps > 0$}{
+		Select edges $(i, j), (k, l) \in \edges(\graph)$\;
+		\If{$(i, l), (k, j) \notin \edges(\graph)$}{
+			$\edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+			\cup \{(i, l), (k, j)\}$\;
+			$\graph \leftarrow \graphadj$\;
+		}
+		$\steps \leftarrow \steps - 1$\;
+	}
+	\Return{$\graph$}
+\end{algorithm}
+
+\subsubsection{The Metropolis-Hastings Method}
+
+An alternative to the \selfloop{} method is the \methas{} method, detailed in
+Algorithm~\ref{algo:methas}, which uses the Metropolis-Hastings algorithm to
+convert the original stationary distribution $\statprob_\graph \sim
+\degree{\graph}$ to a new stationary distribution $\statprobnew_\graph \sim 1$.
+\findadj{} first selects an adjacent graph $\graphadj$ with probability
+$\frac{1}{\degree{\graph}}$. Then, we transition to $\graphadj$ with an
+acceptance probability of $\min\{1,
+\frac{\degree{\graph}}{\degree{\graphadj}}\}$. That is, the original transition
+probability matrix $\tprobmato$ has transition probabilities
+$\tprobmatov{\graph}{\graphadj} = \frac{1}{\degree{\graph}}$, where
+$\tprobmatov{\graph}{\graphadj}$ is the probability of transitioning to state
+$\graphadj$ given that we were in state $\graph$. The new transition
+probability matrix $\tprobmatn$ has transition probabilities
+$\tprobmatnv{\graph}{\graphadj} = \tprobmatov{\graph}{\graphadj} \min\{1,
+\frac{\statprobnew_{\graphadj} \tprobmatov{\graphadj}{\graph}}{\statprobnew_\graph
+\tprobmatov{\graph}{\graphadj}}\} = \frac{1}{\degree{\graph}} \min\{1,
+\frac{\degree{\graph}}{\degree{\graphadj}}\}$. To compute $\degree{\graph}$,
+\citet{GionisMMT07} provide Theorem~\ref{thm:degree}.
+
+\begin{algorithm}
+	\caption{\methas}\label{algo:methas}
+	\DontPrintSemicolon{}
+	\KwIn{Graph $\graph_\dataset$, number of random walk steps $\steps$}
+	\KwOut{Graph $\graph$ with the same degree sequences as $\graph_\dataset$}
+
+	$\graph \leftarrow \graph_\dataset$\;
+	\While{$\steps > 0$}{
+		$\graphadj \leftarrow \findadj(\graph)$\;
+		$\graph \leftarrow \graphadj$, with probability $\min\{1,
+		\frac{\degree{\graph}}{\degree{\graphadj}}\}$\;
+		$\steps \leftarrow \steps - 1$\;
+	}
+	\Return{$\graph$}
+\end{algorithm}
+
+\begin{theorem}\label{thm:degree}
+	Let $\graph = (\rows, \cols, \edges)$ be a bipartite graph represented as a
+	binary matrix $\dataset$ with $\rowsnum = |\rows|$ rows and $\colsnum =
+	|\cols|$ columns. Let $\rowsum{i}$ be the degree of vertex $i \in \rows$,
+	$\colsum{j}$ be the degree of vertex $j \in \cols$, and define $\ddt =
+	\dataset \dataset^\intercal$. Then, the number of graphs $\graphadj$ that are
+	yielded from $\graph$ with one local swap is equal to
+	\begin{equation}\label{eq:graphdeg}
+		\degree{\graph} = \dpairsnum{\graph} - \zstructsnum{\graph} + 2
+		\kttsnum{\graph},
+	\end{equation}
+	where
+	\begin{equation}\label{eq:dpairnum}
+		\dpairsnum{\graph} = \frac{1}{2} \left(|\edges(\graph)| (|\edges(\graph)| +
+		1) - \sum_{i \in \rows} \rowsum{i}^2 - \sum_{j \in \cols}
+		\colsum{j}^2\right)
+	\end{equation}
+	is the number of disjoint pairs of edges,
+	\begin{equation}\label{eq:zstructnum}
+		\zstructsnum{\graph} = \sum_{(i, j) \in \edges(\graph)} (\rowsum{i} - 1)
+		(\colsum{j} - 1)
+	\end{equation}
+	is the number of ``Z'' structures
+	\[
+		\{(a, b), (c, d), (c, b) \in \edges(\graph), \text{with $a, b, c, d$ all
+		distinct}\},
+	\]
+	and
+	\begin{equation}\label{eq:kttnum}
+		\kttsnum{\graph} = \sum_{\substack{i, k \in \rows \\ i < k}}
+		\binom{\ddt(i, k)}{2} = \frac{1}{2} \sum_{\substack{i, k \in \rows \\i <
+		k}} {\ddt(i, k)}^2 - \ddt(i, k)
+	\end{equation}
+	is the number of $\ktt$ cliques of $\graph$.
+\end{theorem}
+
+\begin{proof}
+	Equation (\ref{eq:graphdeg}) follows from the observation that every disjoint
+	pair of edges is swappable unless it is part of a Z structure. However, the
+	value $\dpairsnum{\graph} - \zstructsnum{\graph}$ underestimates the number of
+	swappable pairs because in each $\ktt$, there are 2 disjoint pairs of edges
+	and 4 Z structures, where each disjoint pair participates in two Z
+	structures. Hence, we need to add 2 for each $\ktt$ to avoid double-counting
+	and thus obtain the correct number of disjoint pairs of edges.
+
+	To compute $\dpairsnum{\graph}$ in Equation (\ref{eq:dpairnum}), consider a
+	single edge $(i, j)$. $(i, j)$ forms a disjoint pair with all other edges
+	($|\edges(\graph)| - 1$), except those that have an endpoint at $i$
+	($\rowsum{i} - 1$) or $j$ ($\colsum{j} - 1$). That is, $(i, j)$ forms a
+	disjoint pair with $|\edges(\graph)| + 1 - \rowsum{i} - \colsum{j}$ other
+	edges. Thus, summing over all edges and dividing by two to avoid
+	double-counting, we get
+	\begin{align*}
+		\dpairsnum{\graph} &= \frac{1}{2} \sum_{(i, j) \in \edges(\graph)}
+											(|\edges(\graph)| + 1 - \rowsum{i} - \colsum{j}) \\
+											&= \frac{1}{2} \left(|\edges(\graph)| (|\edges(\graph)| +
+											1) - \sum_{i \in \rows} \sum_{j \in \cols : (i, j) \in
+											\edges(\graph)} \rowsum{i} - \sum_{j \in \cols} \sum_{i
+											\in \rows : (i, j) \in \edges(\graph)} \colsum{j}\right)
+											\\
+											&= \frac{1}{2} \left(|\edges(\graph)| (|\edges(\graph)| +
+											1) - \sum_{i \in \rows} {\rowsum{i}}^2  - \sum_{j \in
+											\cols} {\colsum{j}}^2\right).
+	\end{align*}
+
+	For the number of Z structures $\zstructsnum{\graph}$, observe that there is a
+	one-to-one mapping between a Z structure and its middle edge. As such, an
+	edge $(i, j)$ creates $(\rowsum{i} - 1)(\colsum{j} - 1)$ Z structures with
+	the edges incident to $i$ and $j$.  Summing over all edges, we obtain the
+	equation for $\zstructsnum{\graph}$.
+
+	The equation for the number of $\ktt$'s follows from the observation that
+	$\ddt(i, k)$ is the vector cross product of row $i$ and row $k$ in
+	$\dataset$. That is, $\ddt(i, k) = \sum_{j \in \cols} \dataset(i, j) \cdot
+	\dataset(k, j)$. Further, notice that for all $j \in \cols$, $\dataset(i, j)
+	\cdot \dataset(k, j) = 1$ if and only if $(i, j) \in \edges(\graph)$ and $(k,
+	j) \in \edges(\graph)$. Therefore, $\ddt(i, k) = |\coledges{i}{k}|$, where
+	$\coledges{i}{k} = \{j : (i, j) \in \edges(\graph) \wedge (k, j) \in
+	\edges(\graph)\}$. Any pair of elements in  $\coledges{i}{k}$ forms a $\ktt$
+	with vertices $i, k$. Since there are $\binom{\ddt(i, k)}{2}$ such pairs, we
+	sum over all pairs $i, k \in \rows$ where $i < k$ to obtain Equation
+	(\ref{eq:kttnum}). Note that we sum over all pairs $i, k \in \rows$ where $i
+	< k$ to avoid double counting $\ddt(i, k) = \ddt(k, i)$.
+\end{proof}
+
+In order to compute $\degree{\graphadj}$ from $\degree{\graph}$,
+\citet{GionisMMT07} use the following equation that is derived from
+Equation (\ref{eq:graphdeg}):
+\begin{equation}\label{eq:graphadjdeg}
+	\degree{\graphadj} = \degree{\graph} - \zstructsnumdel + 2 \kttsnumdel.
+\end{equation}
+Here, $\zstructsnumdel = \zstructsnum{\graphadj} - \zstructsnum{\graph}$ and
+$\kttsnumdel = \kttsnum{\graphadj} - \kttsnum{\graph}$. Calculating
+$\zstructsnumdel$ and $\kttsnumdel$ is detailed in the following corollaries.
+
+\begin{corollary}\label{cor:zstructnumdel}
+	Suppose we obtained $\graphadj$ from $\graph$ via the following swap:
+	\[
+		\edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+		\cup \{(i, l), (k, j)\},
+	\]
+	where $(i, j), (k, l) \in \edges(\graph)$ and $(i, l), (k, j) \notin
+	\edges(\graph)$. Then,
+	\[
+		\zstructsnumdel = (\rowsum{i} - \rowsum{k}) (\colsum{l} - \colsum{j})
+	\]
+\end{corollary}
+
+\begin{proof}
+	\begin{align*}
+		\zstructsnumdel &= \zstructsnum{\graphadj} - \zstructsnum{\graph} \\
+									 &= \sum_{(u, v) \in \edges(\graphadj)} (\rowsum{u} - 1)
+									 (\colsum{v} - 1) - \sum_{(u, v) \in \edges(\graph)}
+									 (\rowsum{u} - 1)(\colsum{v} - 1) \\
+									 &= [(\rowsum{i} - 1) (\colsum{l} - 1) + (\rowsum{k} - 1)
+									 (\colsum{j} - 1)] - [(\rowsum{i} - 1) (\colsum{j} - 1) +
+									 (\rowsum{k} - 1) (\colsum{l} - 1)] \\
+									 &= (\rowsum{i} - 1) [(\colsum{l} - 1) - (\colsum{j} - 1)] +
+									 (\rowsum{k} - 1) [(\colsum{j} - 1) - (\colsum{l} - 1)] \\
+									 &= (\rowsum{i} - 1) (\colsum{l} - \colsum{j}) + (\rowsum{k}
+									 - 1) (\colsum{j} - \colsum{l}) \\
+									 &= (\colsum{l} - \colsum{j}) [(\rowsum{i} - 1) - (\rowsum{k}
+									 - 1)] \\
+									 &= (\rowsum{i} - \rowsum{k}) (\colsum{l} - \colsum{j})
+	\end{align*}
+\end{proof}
+
+\begin{corollary}\label{cor:ddtadj}
+	Suppose we obtained $\graphadj$ from $\graph$ via the following swap:
+	\[
+		\edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+		\cup \{(i, l), (k, j)\},
+	\]
+	where $(i, j), (k, l) \in \edges(\graph)$ and $(i, l), (k, j) \notin
+	\edges(\graph)$. Let $\dataset$ and $\datasetadj$ be the datasets associated
+	to $\graph$ and $\graphadj$, respectively. Further, let $\ddt = \dataset
+	\dataset^\intercal$ and $\ddtadj = \datasetadj {\datasetadj}^\intercal$.
+	Then, for all $u, w \in \rows \setminus \{i, k\}$ such that $u \neq w$,
+	\[
+		\ddtadj(u, w) = \ddt(u, w).
+	\]
+	Moreover, for all $u \in \rows$,
+	\begin{align*}
+		\ddtadj(i, u) &=
+		\begin{cases}
+			\ddt(i, u) & \text{ if } u = k \\
+			\ddt(i, u) - \dataset(u, j) + \dataset(u, l) & \text{ if } u \neq k,
+		\end{cases} \\
+		\ddtadj(k, u) &=
+		\begin{cases}
+			\ddt(k, u) & \text{ if } u = i \\
+			\ddt(k, u) - \dataset(u, l) + \dataset(u, j) & \text{ if } u \neq i,
+		\end{cases} \\
+		\ddtadj(u, i) &= \ddtadj(i, u), \text{ and } \\
+		\ddtadj(u, k) &= \ddtadj(k, u).
+	\end{align*}
+\end{corollary}
+
+\begin{proof}
+	First, observe that $\dataset$ and $\datasetadj$ differ only in four
+	positions: $(i, j)$, $(k, l)$, $(i, l)$, and $(k, j)$. As such, $\ddt$ and
+	$\ddtadj$ only differ in two rows ($i$ and $k$) and two columns ($i$ and
+	$k$). This observation leads us to the result that for all $u, w \in
+	\rows \setminus \{i, k\}$ such that $u \neq w$, $\ddtadj(u, w) =
+	\ddt(u, w)$.
+
+	For row $i$, we can express $\ddt(i, u)$ and $\ddtadj(i, u)$ as
+	\begin{align*}
+		\ddt(i, u) &= \dataset(i, j) \cdot \dataset(u, j) + \dataset(i, l) \cdot
+		\dataset(u, l) + \sum_{v \in \cols \setminus \{j, l\}} \dataset(i, v) \cdot
+		\dataset(u, v) \\
+		\ddtadj(i, u) &= \datasetadj(i, j) \cdot \datasetadj(u, j) + \datasetadj(i,
+		l) \cdot \datasetadj(u, l) + \sum_{v \in \cols \setminus \{j, l\}}
+		\datasetadj(i, v) \cdot \datasetadj(u, v).
+	\end{align*}
+	Since among the values in row $i$, only the values in columns
+	$j$ and $l$ differ after the swap, we have that
+	\[
+		\sum_{v \in \cols \setminus \{j, l\}} \dataset(i, v) \cdot \dataset(u, v) =
+		\sum_{v \in \cols \setminus \{j, l\}} \datasetadj(i, v) \cdot
+		\datasetadj(u, v).
+	\]
+
+	If $u = k$, $\dataset(u, j) = 0$, $\dataset(i, l) = 0$, $\datasetadj(i, j) =
+	0$, and $\datasetadj(u, l) = 0$. It follows that $\ddtadj(i, u) = \ddt(i,
+	u)$.
+
+	If $u \neq k$, we only know that $\dataset(i, j) = 1$, $\dataset(i, l) = 0$,
+	$\datasetadj(i, j) = 0$, and $\datasetadj(i, l) = 1$. Thus, we have that
+	$\ddtadj(i, u) = \ddt(i, u) - \dataset(u, j) + \datasetadj(u, l)$. Since we
+	also know that $\datasetadj(u, l) = \dataset(u, l)$ (i.e., its value did not
+	change after the swap), we can simply our equation to $\ddtadj(i, u) =
+	\ddt(i, u) - \dataset(u, j) + \dataset(u, l)$.
+
+	For row $k$, we can express $\ddt(k, u)$ and $\ddtadj(k, u)$ as
+	\begin{align*}
+		\ddt(k, u) &= \dataset(k, j) \cdot \dataset(u, j) + \dataset(k, l) \cdot
+		\dataset(u, l) + \sum_{v \in \cols \setminus \{j, l\}} \dataset(k, v) \cdot
+		\dataset(u, v) \\
+		\ddtadj(k, u) &= \datasetadj(k, j) \cdot \datasetadj(u, j) + \datasetadj(k,
+		l) \cdot \datasetadj(u, l) + \sum_{v \in \cols \setminus \{j, l\}}
+		\datasetadj(k, v) \cdot \datasetadj(u, v).
+	\end{align*}
+	As with the previous case, since among the values in row $k$, only values in
+	columns $j$ and $l$ differ after the swap, we have that
+	\[
+		\sum_{v \in \cols \setminus \{j,
+		l\}} \dataset(k, v) \cdot \dataset(u, v) = \sum_{v \in \cols \setminus \{j,
+		l\}} \datasetadj(k, v) \cdot \datasetadj(u, v).
+	\]
+
+	If $u = i$, $\dataset(k, j) = 0$, $\dataset(u, l) = 0$, $\datasetadj(u, j) =
+	0$, and $\datasetadj(k, l) = 0$. Similar to before, it follows that
+	$\ddtadj(k, u) = \ddt(k, u)$.
+
+	If $u \neq i$, we only know that $\dataset(k, j) = 0$, $\dataset(k, l) = 1$,
+	$\datasetadj(k, j) = 1$, and $\datasetadj(k, l) = 0$. Therefore, we have that
+	$\ddtadj(k, u) = \ddt(k, u) - \dataset(u, l) + \datasetadj(u, j)$. Because
+	$\datasetadj(u, j) = \dataset(u, j)$, we can simply to $\ddtadj(k, u) =
+	\ddt(k, u) - \dataset(u, l) + \dataset(u, j)$.
+
+	The result that $\ddtadj(u, i) = \ddt(i, u)$ and $\ddtadj(u, k) = \ddt(k, u)$
+	follow from the fact that $\ddtadj$ is a symmetric matrix.
+\end{proof}
+
+\begin{corollary}\label{cor:kttnumdel}
+	Suppose we obtained $\graphadj$ from $\graph$ via the following swap:
+	\[
+		\edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+		\cup \{(i, l), (k, j)\},
+	\]
+	where $(i, j), (k, l) \in \edges(\graph)$ and $(i, l), (k, j) \notin
+	\edges(\graph)$. Let $\dataset$ and $\datasetadj$ be the datasets associated
+	to $\graph$ and $\graphadj$, respectively. Further, let $\ddt = \dataset
+	\dataset^\intercal$ and $\ddtadj = \datasetadj {\datasetadj}^\intercal$. For
+	all $u, w \in \rows$, define
+	\[
+		\ddtdel{u}{w} = [{\ddtadj(u, w)}^2 - {\ddt(u, w)}^2] - [\ddtadj(u, w) -
+		\ddt(u, w)].
+	\]
+	Then,
+	\[
+		\kttsnumdel = \frac{1}{2} \left(\sum_{u \in \{i, k\}} \sum_{\substack{w \in
+		\rows \\ u < w}} \ddtdel{u}{w} + \sum_{w \in \{i, k\}} \sum_{\substack{u
+		\in \rows \\ u < w}} \ddtdel{u}{w} \right).
+	\]
+\end{corollary}
+
+\begin{proof}
+	Without loss of generality, we will assume $i < k$. Notice that
+	$\ddtdel{i}{k} = 0$ since $\ddtadj(i, k) = \ddt(i, k)$ by
+	Corollary~\ref{cor:ddtadj}. Now, using the observation that $\ddt$ and
+	$\ddtadj$ differ only in two rows ($i$ and $k$) and two columns ($i$ and
+	$k$), we have
+	\begin{align*}
+		\kttsnumdel &= \kttsnum{\graphadj} - \kttsnum{\graph} \\
+							 &= \frac{1}{2} \sum_{\substack{u, w \in \rows \\ u < w}}
+							 {\ddtadj(u, w)}^2 - \ddtadj(u, w) - \frac{1}{2}
+							 \sum_{\substack{u, w \in \rows \\ u < w}} {\ddt(u, w)}^2 -
+							 \ddt(u, w) \\
+							 &= \frac{1}{2} \sum_{\substack{u, w \in \rows \\ u < w}}
+							 [{\ddtadj(u, w)}^2 - {\ddt(u, w)}^2] - [\ddtadj(u, w) - \ddt(u,
+							 w)] \\
+							 &= \frac{1}{2} \sum_{\substack{u, w \in \rows \\ u < w}}
+							 \ddtdel{u}{w} \\
+							 &= \frac{1}{2}\left(\sum_{\substack{w \in \rows \\ i < w}}
+							 \ddtdel{i}{w} + \sum_{\substack{w \in \rows \\ k < w}}
+							 \ddtdel{k}{w} + \sum_{\substack{u \in \rows \\ u < i}}
+							 \ddtdel{u}{i} + \sum_{\substack{u \in \rows \\ u < k}}
+							 \ddtdel{u}{k}\right) \\
+							 &= \frac{1}{2} \left(\sum_{u \in \{i, k\}} \sum_{\substack{w \in
+							 \rows \\ u < w}} \ddtdel{u}{w} + \sum_{w \in \{i, k\}}
+							 \sum_{\substack{u \in \rows \\ u < w}} \ddtdel{u}{w}\right).
+	\end{align*}
+\end{proof}
+
+From the previous results, $\zstructsnumdel$ can be computed in constant time
+using the equation in Corollary~\ref{cor:zstructnumdel} since the row and
+column sums are the same for all $\graph \in \states$.
+Corollary~\ref{cor:ddtadj} shows us that we can calculate $\ddtadj(u, w)$, $u,
+w \in \rows$, in constant time. Therefore, computing $\kttsnumdel$ using
+Corollary~\ref{cor:kttnumdel} takes $O(m)$, where $m = |\rows|$, since we need
+to iterate over both rows and columns $i, k$ in $\ddtadj$ and $\ddt$.
+
+\subsection{The Problem}
+
+Now that we have described the approach by \citet{GionisMMT07}, we make the
+following observation. While the $\selfloop$ and $\methas$ methods sample
+matrices uniformly at random from the distribution of 0--1 matrices that have
+the same row and column margins, the methods may not sample datasets uniformly
+at random from the distribution of \textit{transactional datasets} that have
+the same row and column margins because transactional datasets consider
+datasets that have the same set of transactions but with different orderings as
+equivalent.  In other words, the methods by \citet{GionisMMT07} consider
+datasets that have the same set of transactions but with different orderings as
+different datasets. In a data mining task like frequent itemset mining, it
+should be the case that we are sampling transactional datasets that have the
+same row and column margins uniformly at random, as not doing so could skew our
+computations for the significance of our results.
+
+\todo{Give an example of why their methods don't work.}
+
+\mynote[from=Matteo,date=12/2]{The following is our new stuff that needs to be
+  integrated.}

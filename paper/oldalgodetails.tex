@@ -1,0 +1,380 @@
+\newcommand{\bijfunc}{f} % bijective function
+\newcommand{\coledges}[2]{C_{#1 #2}} % {j : (#1, j), (#2, j) in edges}
+\newcommand{\colsneqnum}[2]{\eta_{#1, #2}} % number of column values that are not equal across rows #1 and #2
+\newcommand{\ddt}{\ddtsym} % product of dataset matrix and its transposition
+\newcommand{\ddtadj}{\ddtsym^\prime} % product of adjacent dataset matrix and its transposition
+\newcommand{\ddtdel}[2]{\mu(#1, #2)} % [M'(#1, #2)^2 - M(#1, #2)^2] - [M'(#1, #2) - M(#1, #2)]
+\newcommand{\ddtsym}{M} % symbol for the product of dataset matrix and its transposition
+\newcommand{\degreedel}{\Delta\degreesym} % change in the degree
+\newcommand{\degree}[1]{\degreesym(#1)} % degree of a state in a Markov chain (number of out-neighbors)
+\newcommand{\degreesym}{\mathsf{deg}} % symbol for degree of graph
+\newcommand{\edges}{\edgessym} % set of edges in bipartite graph
+\newcommand{\edgesnew}{\edgessym^\newsym} % new set of edges in bipartite graph
+\newcommand{\edgessym}{E} % symbol for set of edges
+\newcommand{\eqswaprowselem}[1]{\ell_{#1}} % an element in the set of row tuples (u, w) such that rows u, w equal the rows involved in the swap
+\newcommand{\eqgraphs}{\Psi} % set of equivalent graphs yielded from a graph with a local swap defined by Gionis et al.
+\newcommand{\eqgraphselem}[1]{\psi_{#1}} % an element in the set of equivalent graphs yielded from a graph with a local swap defined by Gionis et al.
+\newcommand{\eqgraphsnum}[1]{\eqgraphsnumsym(#1)} % number of equivalent graphs yielded from #1 with a local swap defined by Gionis et al.
+\newcommand{\eqgraphsnumdel}{\Delta\eqgraphsnumsym} % change in the number of equivalent graphs yielded from a graph with a local swap defined by Gionis et al.
+\newcommand{\eqgraphsnumsym}{H} % symbol for the number of equivalent graphs yielded from a graph with a local swap defined by Gionis et al.
+\newcommand{\eqswaprows}{\mathcal{L}} % set of transactions pairs (u, w) equal to the transactions involved in the swaps.
+\newcommand{\esupp}[1]{\mu\lparen#1\rparen} % expected support of itemset #1 under the null model (implicit)
+\newcommand{\findadj}{\texttt{findAdjacent}} % findAdjacent method
+\newcommand{\findadjrev}{\texttt{findAdjacentRevised}} % findAdjacentRevised method
+\newcommand{\geteqgraphsnumdel}{\texttt{get$\eqgraphsnumdel$}} % method to get change in the number of equivalent graphs yielded from a graph with a local swap defined by Gionis et al.
+\newcommand{\graph}{\graphsym} % bipartite graph representation for dataset
+\newcommand{\graphadj}{\graphsym^\newsym} % adjacent bipartite graph
+\newcommand{\graphadjnum}[1]{\tau(#1)} % total number of not equivalent adjacent graphs from graph #1
+\newcommand{\graphsym}{G} % symbol for bipartite graph
+\newcommand{\kttsnumdel}{\Delta\kttnumsym} % change in number of K_{2, 2} cliques
+\newcommand{\markchain}{\mathcal{Q}} % Markov chain
+\newcommand{\methas}{\texttt{metropolisHastings}} % metropolisHastings method
+\newcommand{\methasrev}{\texttt{metropolisHastingsRevised}} % metropolisHastingsRevised method
+\newcommand{\miningalgo}{\mathsf{A}} % frequent itemset mining algorithm
+\newcommand{\naive}{\texttt{na\"{\i}ve}} % naive method
+\newcommand{\result}{\resultsym} % result of frequent itemset mining algorithm
+\newcommand{\results}{\mathbf{\resultsym}} % set of results
+\newcommand{\resultsym}{X} % symbol for result
+\newcommand{\rnfi}[1]{RNFI(#1)} % relative number of frequent itemsets for the sampled dataset #1 % chktex 36
+\newcommand{\selfloop}{\texttt{selfLoop}} % selfLoop method
+\newcommand{\spairsgi}{Y} % set of swappable pairs of edges defined by Gionis et al.
+\newcommand{\spairsgieq}{\Phi} % set of swappable pairs of edges defined by Gionis et al. that lead to an equivalent graph
+\newcommand{\spairsgieqelem}[1]{\phi_{#1}} % an element in the set of swappable pairs of edges defined by Gionis et al. that lead to an equivalent graph
+\newcommand{\spairselem}[1]{g_{#1}} % an element in the set of swaps from a dataset to another
+\newcommand{\statprobnew}{\statprob'} % new stationary distribution
+\newcommand{\tprobmatn}{\mathbf{\tprobmatnsym}} % new transition probability matrix
+\newcommand{\tprobmatnsym}{P} % symbol for new transition probability matrix
+\newcommand{\tprobmatnv}[2]{\tprobmatnsym_{#1, #2}} % value of new transition probability matrix at #1, #2
+\newcommand{\tprobmato}{\mathbf{\tprobmatosym}} % original transition probability matrix
+\newcommand{\tprobmatosym}{Q} % symbol for original transition probability matrix
+\newcommand{\tprobmatov}[2]{\tprobmatosym_{#1, #2}} % value of original transition probability matrix at #1, #2
+\newcommand{\transitions}{\mathcal{T}} % set of transitions (pairs of graphs)
+\newcommand{\zstructsnumdel}{\Delta\zstructsnumsym} % change in number of Z structures
+\section{Algorithms}
+
+In order to develop methods to sample datasets uniformly at random from the
+distribution of transactional datasets that have the same row and column
+margins, we begin with formalizing the notation for equivalent transactional
+datasets.
+
+Let $\dataset$ and $\datasetadj$ be transactional (0--1) datasets. We denote
+the relation $\equiv$ by $\dataset \equiv \datasetadj$ if and only if
+$\dataset$ and $\datasetadj$ are equivalent up to the order of transactions.
+Similarly, we write $\graph \equiv \graphadj$ if and only if $\dataset \equiv
+\datasetadj$, where $\graph$ and $\graphadj$ are the graphs associated to
+$\dataset$ and $\datasetadj$, respectively.
+
+Now, we provide a new condition for the local swap so that $\dataset \not\equiv
+\datasetadj$. Given $(i, j), (k, l) \in \edges(\graph)$, not only must (1) $(i,
+l), (k, j) \notin \edges(\graph)$, but it also must be that (2) there exists $c
+\in \cols$ such that $\dataset(i, c) \neq \dataset(k, c)$.
+Lemma~\ref{lem:notequiv} shows why these conditions must be true, and
+Algorithm~\ref{algo:findadjrev} details a revised \findadj{} method that
+incorporates condition (2). From now on, we will refer to pairs of edges that
+satisfy the two conditions above as \textit{swappable}.
+
+\begin{lemma}\label{lem:notequiv}
+  Suppose we obtained $\graphadj$ from $\graph$ via the following swap:
+  \[
+    \edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+    \cup \{(i, l), (k, j)\},
+  \]
+  where $(i, j), (k, l) \in \edges(\graph)$ and $(i, l), (k, j) \notin
+  \edges(\graph)$. Let $\dataset$ and $\datasetadj$ be the datasets associated
+  to $\graph$ and $\graphadj$, respectively. Then, $\dataset \not\equiv
+  \datasetadj$ if and only if there exists $c \in \cols \setminus \{j, l \}$
+  such that $\dataset(i, c) \neq \dataset(k, c)$.
+\end{lemma}
+
+\begin{proof}
+  We begin with proving the forward direction by proving its contrapositive. If
+  for all $c \in \cols \setminus \{j, l\}, \dataset(i, c) = \dataset(k, c)$,
+  then rows $\dataset(i) = \datasetadj(k)$ and $\dataset(k) = \datasetadj(i)$.
+  Because only rows $i, k$ are different and all other rows stayed the same
+  after the swap, we have that $\dataset \equiv \datasetadj$.
+
+  Next, we prove the backward direction directly. If there exists $c \in \cols
+  \setminus \{j, l\}$ such that $\dataset(i, c) \neq \dataset(k, c)$, then rows
+  $\dataset(i) \neq \datasetadj(k)$ and $\dataset(k) \neq \datasetadj(i)$.
+  It follows that $\dataset \not\equiv \datasetadj$.
+\end{proof}
+
+\begin{algorithm}
+	\caption{\findadjrev}\label{algo:findadjrev}
+	\DontPrintSemicolon{}
+	\KwIn{Graph $\graph$}
+	\KwOut{Graph $\graphadj$ such that $(\graph, \graphadj) \in \transitions$}
+
+  \Repeat{$(i, l), (k, j) \notin \edges(\graph)$ and $\exists c \in \cols
+    \setminus \{j, l\}$ s.t. $\dataset(i, c) \neq \dataset(k, c)$}{
+		Select edges $(i, j), (k, l) \in \edges(\graph)$ uniformly at random\;
+	}
+	$\edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+	\cup \{(i, l), (k, j)\}$\;
+	\Return{$\graphadj$}
+\end{algorithm}
+
+If we were to run the \naive{} method with \findadjrev{} instead of \findadj{},
+then our transition probability matrix $\tprobmato$ would have transition
+probabilities $\tprobmatov{\graph}{\graphadj} =
+\frac{\spairsnum{\graph}{\graphadj}}{\graphadjnum{\graph}}$, where $\graph
+\not\equiv \graphadj$, $\spairsnum{\graph}{\graphadj}$ is the number of
+swappable pairs of edges that transition to state $\graphadj$ given that we are
+at $\graph$, and $\graphadjnum{\graph}$ is the total number of swappable pairs
+of edges for state $\graph$ (i.e., $\graphadjnum{\graph} = \sum_{\graphadj}
+\spairsnum{\graph}{\graphadj}$). Like before, it is not difficult to show that
+this revised version of the \naive{} method does not always converge to a
+uniform stationary distribution.
+
+\subsection{The Metropolis-Hastings Method Revised}
+
+To construct a Markov chain where each graph (state) is different up to the
+order of transactions and where the chain converges a uniform stationary
+distribution, we leverage the \methas{} method by \citet{GionisMMT07}.
+Here, our new transition probability matrix $\tprobmatn$ has transition
+probabilities
+\[
+  \tprobmatnv{\graph}{\graphadj} =
+  \frac{\spairsnum{\graph}{\graphadj}}{\graphadjnum{\graph}} \min\{1,
+  \frac{\spairsnum{\graphadj}{\graph}
+  \graphadjnum{\graph}}{\spairsnum{\graph}{\graphadj}
+  \graphadjnum{\graphadj}}\}.
+\]
+That is, \findadjrev{} first selects an adjacent graph $\graphadj$ with
+probability $\frac{\spairsnum{\graph}{\graphadj}}{\graphadjnum{\graph}}$. Then,
+we transition to $\graphadj$ with an acceptance probability of $\min\{1,
+\frac{\spairsnum{\graphadj}{\graph}
+\graphadjnum{\graph}}{\spairsnum{\graph}{\graphadj} \graphadjnum{\graphadj}}\}$.
+The revised \methas{} method is detailed in Algorithm~\ref{algo:methasrev}.
+
+\begin{algorithm}
+	\caption{\methasrev}\label{algo:methasrev}
+	\DontPrintSemicolon{}
+	\KwIn{Graph $\graph_\dataset$, number of random walk steps $\steps$}
+	\KwOut{Graph $\graph$ with the same degree sequences as $\graph_\dataset$}
+
+	$\graph \leftarrow \graph_\dataset$\;
+	\While{$\steps > 0$}{
+		$\graphadj \leftarrow \findadjrev(\graph)$\;
+    $\graph \leftarrow \graphadj$, with probability $\min\{1,
+    \frac{\spairsnum{\graphadj}{\graph}
+    \graphadjnum{\graph}}{\spairsnum{\graph}{\graphadj}
+    \graphadjnum{\graphadj}}\}$\;
+    $\steps \leftarrow \steps - 1$\;
+	}
+	\Return{$\graph$}
+\end{algorithm}
+
+The main task in the \methasrev{} method is computing
+$\spairsnum{\graph}{\graphadj}$, $\graphadjnum{\graph}$,
+$\spairsnum{\graphadj}{\graph}$, and $\graphadjnum{\graphadj}$. We begin with
+detailing how to compute $\spairsnum{\graph}{\graphadj}$ and
+$\graphadjnum{\graph}$ in the following theorems.
+
+\begin{theorem}
+  Suppose we obtained $\graphadj$ from $\graph$ via the following swap:
+  \[
+    \edges(\graphadj) \leftarrow \edges(\graph) \setminus \{(i, j), (k, l)\}
+    \cup \{(i, l), (k, j)\},
+  \]
+  where $(i, j), (k, l) \in \edges(\graph)$, $(i, l), (k, j) \notin
+  \edges(\graph)$, and there exists $c \in \cols \setminus \{i, j\}$ such that
+  $\dataset(i, c) \neq \dataset(k, c)$. Let $\dataset$ and $\datasetadj$ be the
+  datasets associated to $\graph$ and $\graphadj$, respectively. Then, the
+  number of swappable pairs of edges that transition to state $\graphadj$ given
+  that we are at $\graph$ is
+  \[
+    \spairsnum{\graph}{\graphadj} = (\text{\# of rows equal to $\dataset(i)$})
+    \cdot (\text{\# of rows equal to $\dataset(j)$}).
+  \]
+\end{theorem}
+
+\begin{proof}
+  We begin by defining the following sets.
+  \begin{align*}
+    \spairs &= \{((u, v), (w, x)) : (u, v), (w, x) \in \edges(\graph), u < w
+    \wedge \text{swapping $(u, v), (w, x)$ transitions to $\graphadj$}\}, \\
+    \eqswaprows &= \{(u, w) : u, w \in \rows, u < w \wedge \dataset(u) =
+    \dataset(i) \wedge \dataset(w) = \dataset(k)\}.
+  \end{align*}
+  It suffices to show that $|\spairs| = |\eqswaprows|$. To do so, we find a
+  bijective function mapping from $\spairs$ to $\eqswaprows$.  Let $\bijfunc :
+  \spairs \rightarrow \eqswaprows$ be a function defined by
+  \[
+    \bijfunc((u, v), (w, x)) = (u, w),
+  \]
+  where $((u, v), (w, x)) \in \spairs$ and $(u, w) \in \eqswaprows$.
+
+  To prove that $\bijfunc$ is bijective, we first show that $\bijfunc$ is
+  injective. Let $\spairselem{1}, \spairselem{2} \in \spairs$, where
+  $\spairselem{1} = ((u_1, v_1), (w_1, x_1))$ and $\spairselem{2} = ((u_2,
+  v_2), (w_2, x_2))$. If $\bijfunc(\spairselem{1}) = \bijfunc(\spairselem{2})$,
+  then $(u_1, w_1) = (u_2, w_2)$, and thus $u_1 = u_2$ and $w_1 = w_2$. If we
+  swap a pair of edges across rows $u_1 = u_2$ and $w_1 = w_2$ in $\dataset$
+  such that the swap generates $\datasetadj$, there can only be two columns
+  involved in the swap. As such, we have that $v_1 = v_2$ and $w_1 = w_2$. It
+  follows that $\spairselem{1} = \spairselem{2}$, and so $\bijfunc$ is
+  injective.
+
+  Next, we show that $\bijfunc$ is surjective. Let $\eqswaprowselem{} \in
+  \eqswaprows$, where $\eqswaprowselem{} = (u, w)$. Hence, $\dataset(u) =
+  \dataset(i)$ and $\dataset(w) = \dataset(k)$, implying that swapping $(u, j)$
+  and $(w, l)$ also transitions to $\graphadj$. If $\spairselem{} \in \spairs$
+  such that $\spairselem{} = ((u, j), (w, l))$, it follows that $\bijfunc$ is
+  surjective because $\bijfunc(\spairselem{}) = \eqswaprowselem{}$.
+
+  Having shown that $\bijfunc$ is both injective and surjective, $\bijfunc$ is
+  therefore bijective and $|\spairs| = |\eqswaprows|$.
+\end{proof}
+
+\begin{theorem}\label{thm:graphadjnum}
+  The total number of swappable pairs of edges for a state $\graph$ is equal to
+  \begin{equation}\label{eq:graphadjnum}
+    \graphadjnum{\graph} = \degree{\graph} - \eqgraphsnum{\graph},
+  \end{equation}
+  where, as in Theorem~\ref{thm:degree}, $\degree{\graph}$ is the number of
+  graphs $\graphadj$ that are yielded from $\graph$ with a local swap defined
+  by Algorithm~\ref{algo:findadj} \textnormal{\findadj{}}, and
+  \begin{equation}\label{eq:eqgraphadjnum}
+    \eqgraphsnum{\graph} = \sum_{\substack{u, w \in \rows \\ u < w}}
+    \indic{\rowsum{u} = \rowsum{w} \wedge \colsneqnum{u}{w} = 2}
+  \end{equation}
+  is the number of graphs $\graphadj$ that are yielded from $\graph$ with a
+  local swap defined by \textnormal{\findadj{}} such that $\graphadj \equiv
+  \graph$. $\indic{\cdot}$ is the indicator function taking value 1 if the
+  argument is true, and 0 otherwise, and
+  \[
+    \colsneqnum{u}{w} = |\{z \in \cols : \dataset(u, z) \neq \dataset(w, z)\}|
+  \]
+  is the number of column values in $\dataset$ that differ across rows $u$ and
+  $w$.
+\end{theorem}
+
+\begin{proof}
+  Equation (\ref{eq:graphadjnum}) follows from the observation that subtracting
+  $\eqgraphsnum{\graph}$, the number of adjacent graphs $\graphadj$ such that
+  $\graphadj \equiv \graph$, from $\degree{\graph}$, the total number of
+  adjacent graphs $\graphadj$, yields $\graphadjnum{\graph}$, the total number
+  of swappable pairs of edges for state $\graph$.
+
+  To show that Equation (\ref{eq:eqgraphadjnum}) correctly computes the
+  number of graphs $\graphadj$ such that $\graphadj \equiv \graph$, note
+  that this number is equivalent to the number of pairs of edges $(u, v), (w,
+  x) \in \edges(\graph)$ such that $(u, x), (w, v) \notin \edges(\graph)$,
+  where swapping edges $(u, v)$ and $(w, x)$ leads to an equivalent graph.
+  This set of pairs of edges can be written as
+  \[
+    \spairsgieq = \{((u, v), (w, x)) \in \spairsgi : \forall z \in \cols
+    \setminus \{v, x\}, \dataset(u, z) = \dataset(w, z)\},
+  \]
+  where
+  \[
+    \spairsgi = \{((u, v), (w, x)) : (u, v), (w, x) \in \edges(\graph), u < w
+    \wedge (u, x), (w, v) \notin \edges(\graph)\}.
+  \]
+  $\eqgraphsnum{\graph}$ can also be expressed as $\eqgraphsnum{\graph} =
+  |\eqgraphs|$, where
+  \[
+    \eqgraphs = \{(u, w) \in \rows : u < w \wedge \rowsum{u} = \rowsum{w}
+    \wedge \colsneqnum{u}{w} = 2\}.
+  \]
+  Hence, it suffices to show that $|\spairsgieq| = |\eqgraphs|$. Just like
+  before, we find a bijective function from $\spairsgieq$ to $\eqgraphs$.
+  Let $\bijfunc : \spairsgieq \rightarrow \eqgraphs$ be a function defined by
+  \[
+    \bijfunc((u, v), (w, x)) = (u, w),
+  \]
+  where $((u, v), (w, x)) \in \spairsgieq$ and $(u, w) \in \eqgraphs$.
+
+  We start with showing the $\bijfunc$ is injective. Let $\spairsgieqelem{1},
+  \spairsgieqelem{2} \in \spairsgieq$, where $\spairsgieqelem{1} = ((u_1, v_1),
+  (w_1, x_1))$ and $\spairsgieqelem{2} = ((u_2, v_2), (w_2, x_2))$. If
+  $\bijfunc(\spairsgieqelem{1}) = \bijfunc(\spairsgieqelem{2})$, then $(u_1,
+  w_1) = (u_2, w_2)$, and so $u_1 = u_2$ and $w_1 = w_2$. Because there are
+  only two columns where the values are different across rows $u_1 = u_2$ and
+  $w_1 = w_2$, we have that $v_1 = v_2$ and $x_1 = x_2$. It follows that
+  $\spairsgieqelem{1} = \spairsgieqelem{2}$, and therefore $\bijfunc$ is
+  injective.
+
+  We proceed with proving that $\bijfunc$ is surjective. Let $\eqgraphselem{}
+  \in \eqgraphs$ such that $\eqgraphselem{} = (u, w)$. Since $\colsneqnum{u}{w}
+  = 2$, there are exactly two columns where values in rows $u$ and $w$ differ.
+  We denote these two columns as $v$ and $x$. Thus, $\dataset(u, v) \neq
+  \dataset(w, v)$ and $\dataset(u, x) \neq \dataset(w, x)$. Further, since
+  $\rowsum{u} = \rowsum{w}$, it follows that $\dataset(u, v) \neq \dataset(u,
+  x)$ and $\dataset(w, u) \neq \dataset(w, x)$. As such, we either have
+  \begin{align*}
+    \dataset(u, v) &= 1 \wedge \dataset(u, x) = 0 \wedge \dataset(w, x) = 1
+    \wedge \dataset(w, v) = 0 \text{ or } \\
+    \dataset(u, v) &= 0 \wedge \dataset(u, x) = 1 \wedge \dataset(w, x) = 0
+    \wedge \dataset(w, v) = 1
+  \end{align*}
+  That is, either $((u, v), (w, x)) \in \spairsgi$ or $((u, x), (w, v)) \in
+  \spairsgi$. Without loss of generality, suppose $((u, v), (w, x)) \in
+  \spairsgi$. Then, if $\spairsgieqelem{} \in \spairsgieq$ such that
+  $\spairsgieqelem{} = ((u, v), (w, x))$, it follows that $\bijfunc$ is
+  surjective since $\bijfunc(\spairsgieqelem{}) = \eqgraphselem{}$.
+
+  Therefore, $\bijfunc$ is bijective and $|\spairsgieq| = |\eqgraphs|$.
+\end{proof}
+
+To calculate $\spairsnum{\graphadj}{\graph}$, suppose we have a hash map that
+contains transactions as keys and the number of transactions equal to the key
+as the value. Further, suppose we swapped edges $(i, j), (k, l) \in
+\edges(\graph)$. To update the hash map, we would subtract 1 from the number of
+transactions equal to $\dataset(i)$ and add 1 to the number of transactions
+equal to $\datasetadj(i)$; we would do the same for $k$ as well.
+$\spairsnum{\graphadj}{\graph}$ would then be the number of rows equal to
+$\datasetadj(i)$ times the number of rows equal to $\datasetadj(k)$.
+Computing $\graphadjnum{\graphadj}$ follows immediately from
+\cref{thm:graphadjnum}. Specifically,
+\begin{equation}
+  \graphadjnum{\graphadj} = \graphadjnum{\graph} + \degreedel - \eqgraphsnumdel,
+\end{equation}
+where $\degreedel = \degree{\graphadj} - \degree{\graphadj}$
+\cref{eq:graphadjnum} and $\eqgraphsnumdel$ is computed in
+\cref{algo:eqgraphsnumdel}.
+
+\begin{algorithm}
+  \caption{\geteqgraphsnumdel}\label{algo:eqgraphsnumdel}
+	\DontPrintSemicolon{}
+  \SetKwData{RowSumIndicesMap}{sumIndicesM}
+  \SetKwData{RowPairNumColsNeqMap}{pairColsNeqM}
+  \SetKw{Continue}{continue}
+  \SetKwFunction{SortIncreasing}{sortIncreasing}
+  \KwIn{0--1 matrix $\dataset$, swapped edges $(i, j), (k, l) \in
+    \edges(\graph)$, \RowSumIndicesMap: map where each key is a row sum and
+    each value is a list of row indices that have a row sum equal to the key,
+    \RowPairNumColsNeqMap: map where each key is a pair of row indices $(u, w)$
+    and each value is the number of column values that differ across the pair
+    of rows $\colsneqnum{u}{w}$}
+  \KwOut{$\eqgraphsnumdel$}
+
+  $\eqgraphsnumdel \leftarrow 0$\;
+  \ForEach{$u \in \{i, k\}$}{
+    \ForEach{$w \in \RowSumIndicesMap[\rowsum{u}]$}{
+      \If{$(u = w) \vee (u = i \wedge w = k) \vee (u = k \wedge w = i)$}{
+        \Continue\;
+      }
+      $u, w \leftarrow \SortIncreasing{u, w}$\;
+      $\colsneqnum{u}{w} \leftarrow \RowPairNumColsNeqMap[(u, w)]$\;
+      \ForEach{$z \in \{j, l\}$}{
+        \If{$\dataset(u, z) = \dataset(w, z)$}{
+          $\RowPairNumColsNeqMap[(u, w)]--$\;
+        }
+        \Else{
+          $\RowPairNumColsNeqMap[(u, w)]++$\;
+        }
+      }
+      \If{$\RowPairNumColsNeqMap[(u, w)] = 2 \wedge \colsneqnum{u}{w} \neq
+        2$}{
+        $\eqgraphsnumdel++$\;
+      }
+      \ElseIf{$\RowPairNumColsNeqMap[(u, w)] \neq 2 \wedge \colsneqnum{u}{w} =
+        2$}{
+        $\eqgraphsnumdel--$\;
+      }
+    }
+  }
+  \Return{$\eqgraphsnumdel$}
+\end{algorithm}

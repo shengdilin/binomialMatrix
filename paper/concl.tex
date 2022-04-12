@@ -1,0 +1,19 @@
+%! TEX root = diffusr.tex
+\section{Conclusion}\label{sec:concl}
+
+We present \algo, a collection of algorithms for sampling unlabeled
+transactional datasets from a null model, which is a key step in evaluating the
+statistical validity of the results of knowledge discovery tasks. \algo\ uses
+swap-randomization, a Markov-Chain-Monte-Carlo approach. In contrast with
+previous work, \algo\ does not suffer from a distortion of the space of
+datasets, which was due to an assumed 1-to-1 mapping of the datasets to binary
+matrices. This distortion may (and does) affect the outcome of the validation,
+i.e., results in false discoveries. We avoid this assumption and show two
+methods (\naivealgo\ and \refalgo) for drawing datasets from the non-distorted
+null space. Our experimental evaluation shows that the distortion is relevant,
+but \algo\ does not suffer from it, is fast, and scales well as the dataset
+grows.
+
+Interesting directions for future work include the definition of richer null
+models that capture more important properties of the data, and fast algorithms
+to sample from these null models.

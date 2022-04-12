@@ -1,0 +1,45 @@
+%! TEX root = diffusr.tex
+% Keep the list in alphabetical order, unless is really helpful to break it =)
+\usepackage{accents} % to use custom accents
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{cleveref}
+\crefname{algorithm}{Alg.}{Algs.}
+\Crefname{algorithm}{Algorithm}{Algorithms}
+\crefname{appendix}{App.}{App.}
+\Crefname{appendix}{Appendix}{Appendices}
+\crefname{corollary}{Corol.}{Corolls.}
+\Crefname{corollary}{Corollary}{Corollaries}
+\crefname{conjecture}{Conjecture}{Conjectures}
+\Crefname{conjecture}{Conjecture}{Conjectures}
+\crefformat{conjecture}{Conjecture~#2#1#3}
+\crefmultiformat{conjecture}{Conjectures~#2#1#3}{\ and~#2#1#3}{, #2#1#3}{\ and~#2#1#3}
+\crefname{definition}{Def.}{Defs.}
+\Crefname{definition}{Definition}{Definition}
+\crefname{figure}{Fig.}{Figs.}
+\Crefname{figure}{Figure}{Figures}
+\crefname{lemma}{Lemma}{Lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{Prop.}{Props.}
+\Crefname{proposition}{Proposition}{Propositions}
+\Crefname{section}{Section}{Sections}
+\crefname{section}{Sect.}{Sect.}
+\crefname{subsection}{Sect.}{Sect.}
+\Crefname{subsection}{Section}{Sections}
+\crefname{subsubsection}{Sect.}{Sect.}
+\Crefname{subsubsection}{Section}{Sections}
+\crefname{table}{Table}{Tables}
+\Crefname{table}{Table}{Tables}
+\crefname{theorem}{Thm.}{Thms.}
+\Crefname{theorem}{Theorem}{Theorems}
+\usepackage{dsfont} % for font for indicator function
+\usepackage{mathtools} % for DeclarePairedDelimiter, underbracket, …
+\usepackage{graphicx} % package for images
+\graphicspath{ {./images/} } % path for images
+\usepackage{multirow} % for multi-line rows in tables
+\usepackage{tikz} % for drawing a custom accent
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{xfrac} % for nice inline fractions
+\usepackage[font=small,labelfont=bf,labelsep=space]{caption}
+\usepackage[font=small,labelfont=bf]{subcaption} % for subfigures
+
+%\usepackage{chato-notes} % temporary package. Remove/comment out before submission

@@ -1,0 +1,71 @@
+# Adapted from Davide Gerosa (2021) https://github.com/dgerosa
+# https://gist.github.com/dgerosa/2e1f47a39180f39bde848e38243efa94
+
+# Edit the DIR and FILE variables with the location of the latex file.
+# Place the yaml file in a directory called .github/workflows
+
+# To compile multiple papers, duplicate the job called "paper" with different FILE/DIR names
+
+name: LaTeXCI
+
+on:
+  push:
+    paths:
+      - paper/**
+      - thesis/**
+      - presentation/**
+
+jobs:
+  compile-paper:
+    runs-on: ubuntu-latest
+    env:
+      # Edit here with the names of your latex file and directory (can use ".")
+      DIR: paper/
+      FILE: diffusr.tex
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update package lists
+        run: sudo apt-get update
+      - name: Install TeXlive
+        run: sudo apt-get install texlive texlive-publishers texlive-science texlive-fonts-extra latexmk cm-super
+      - name: Compile LaTeX
+        working-directory: ${{ env.DIR }}
+        run: latexmk -pdf -bibtex ${{ env.FILE }}
+
+  compile-thesis:
+    runs-on: ubuntu-latest
+    env:
+      # Edit here with the names of your latex file and directory (can use ".")
+      DIR: thesis/
+      FILE: thesis.tex
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update package lists
+        run: sudo apt-get update
+      - name: Install TeXlive
+        run: sudo apt-get install texlive texlive-publishers texlive-science texlive-fonts-extra latexmk cm-super
+      - name: Compile LaTeX
+        working-directory: ${{ env.DIR }}
+        run: latexmk -pdf -bibtex ${{ env.FILE }}
+
+  compile-presentation:
+    runs-on: ubuntu-latest
+    env:
+      # Edit here with the names of your latex file and directory (can use ".")
+      DIR: presentation/
+      FILE: presentation.tex
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update package lists
+        run: sudo apt-get update
+      - name: Install TeXlive
+        run: sudo apt-get install texlive texlive-publishers texlive-science texlive-fonts-extra latexmk cm-super
+      - name: Compile LaTeX
+        working-directory: ${{ env.DIR }}
+        run: latexmk -pdf -bibtex ${{ env.FILE }}

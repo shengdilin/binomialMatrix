@@ -1,0 +1,78 @@
+%! TEX root = thesis.tex
+% Keep the list in alphabetical order, unless is *really* helpful to break it =)
+\DeclarePairedDelimiter\abs{\lvert}{\rvert} % absolute value
+% Swap the definition of \abs*, so that \abs
+% resizes the size of the bars, and the starred version does not.
+\makeatletter
+\let\oldabs\abs%
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+\makeatother
+\newcommand{\algoname}{DiFfuSR} % our algorithm name in plain text
+\newcommand{\algo}{\textsc{\algoname}} % algorithm name in smallcaps
+\newcommand{\arsd}[1]{ARSD(#1)} % average relative support difference of the sampled dataset #1 % chktex 36
+\newcommand{\naivealgo}{\textsc{\algoname-N}} % naive algorithm
+\newcommand{\refalgo}{\textsc{\algoname-R}} % refined algorithm
+\newcommand{\card}[1]{\abs{#1}} % cardinality of a set
+\newcommand{\colsnum}{n} % number of columns in dataset
+\newcommand{\cols}{C} % set of columns / column vertices
+\newcommand{\colsum}[1]{c_#1} % sum of column at index #1 of dataset
+\newcommand{\copiesnum}[1]{\mathsf{c}\lparen#1\rparen} % no. of matrices corresponding to dataset #1
+\newcommand{\dataset}{\datasetsym} % dataset
+\newcommand{\datasetadj}{\datasetsym^\prime} % adjacent dataset
+\newcommand{\datasetsym}{\mathcal{D}} % symbol for dataset
+\newcommand{\dpairsnum}[1]{\mathsf{J}\lparen#1\rparen} % number of disjoint pairs of edges of graph #1
+\newcommand{\expectation}[2]{\mathbb{E}_{#2}\left[#1\right]} % expectation of r.v. #1 w.r.t distribution #2
+\newcommand{\fis}[2]{\mathsf{FI}_{#2}(#1)} % frequent itemsets in dataset #2 wrt to threshold #1 % chktex 36
+\newcommand{\gioalgo}{\textrm{GMMT}} % name for Gionis et al.'s algo
+\newcommand{\hashmap}[1]{\hashmapsym[#1]} % hashmap value for key #1
+\newcommand{\hashmapsym}{\mathsf{M}} % symbol for hashmap
+\newcommand{\indic}[1]{\mathds{1}[#1]} % indicator function
+\newcommand{\items}{\mathcal{I}} % alphabet of items
+\newcommand{\kttsnum}[1]{\kttnumsym(#1)} % number of K_{2, 2} cliques of graph #1
+\newcommand{\ktt}{\kttnumsym_{2, 2}} % K_{2, 2} clique
+\newcommand{\kttnumsym}{\mathsf{K}} % symbol for K_{2, 2} clique
+\newcommand{\matrices}{\mathcal{M}} % Set of matrices considered by Gionis et al.'s algo
+\newcommand{\mattodat}[1]{\mathsf{dat}\lparen#1\rparen} % function to map matrices to datasets
+\newcommand{\neighprob}{\eta} % distribution over the out-neighbors of a state
+\newcommand{\newsym}{\prime} % symbol for new object
+\newcommand{\nullmodel}{\Pi} % null model
+\newcommand{\nullprob}{\pi} % null probability distribution
+\newcommand{\nullset}{\mathcal{Z}} % null set of datasets
+\newcommand{\odataset}{\smash{\nonsmashedodataset}} % observed dataset
+\newcommand{\nonsmashedodataset}{\mathring{\dataset}}
+\newcommand{\population}{\mathcal{P}} % population from which to sample
+\newcommand{\pval}[2]{\mathsf{p}_{#1}\lparen#2\rparen} % p-value of pattern #2 in dataset #1
+\newcommand{\epval}[2]{\tilde{\mathsf{p}}\lparen#1, #2\rparen} % estimate of p-value dataset #1 using the set of datasets #2
+\newcommand{\rowsnum}{m} % number of rows in the dataset
+\newcommand{\rows}{R} % set of rows / row vertices
+\newcommand{\rowsum}[1]{r_{#1}} % sum of row at index #1 of dataset
+\newcommand{\samplprob}{\xi} % sampling distribution for \population
+\newcommand{\selfspairsnum}[1]{\mathsf{H}\lparen#1\rparen} % number of swaps from a dataset to itself
+\newcommand{\spairsnum}[2]{\mathsf{sw}_{#1}\lparen#2\rparen} % number of swaps from dataset #1 to #2
+\newcommand{\spairs}{\mathcal{G}} % set of swaps from a dataset to another
+\newcommand{\spairsfactor}{\chi} % correcting factor for the number of swaps
+\newcommand{\squaredmat}{Q} % Product of the matrix representation of a dataset by its transpose
+\newcommand{\sumtlen}{w} % sum of the transaction lengths
+\newcommand{\supp}[2]{\sigma_{#1}(#2)} % support of itemset #1 in dataset #2 % chktex 36
+\newcommand{\states}{\mathcal{S}} % state space of Markov chain
+\newcommand{\statprob}{\zeta} % stationary distribution for a Markov chain
+\newcommand{\suchthat}{\mathrel{:}} % "such that" symbol for set definitions, with the right spacing
+\newcommand{\swapnum}{s} % number of swaps
+\newcommand{\swapnummult}{k} % swap number multiplier
+\newcommand{\thresh}{\theta} % minimum support threshold
+\newcommand{\titlefirstpart}{Distortion-Free Swap-Randomization}
+\newcommand{\titlesecondpart}{for Statistically-Testing Data Mining Results}
+\newcommand{\totspairsnummat}[1]{\mathsf{mts}\lparen#1\rparen} % total number of possible swaps for matrix #1
+\newcommand{\totspairsnumdat}[1]{\mathsf{dts}\lparen#1\rparen} % total number of possible swaps for matrix #1
+\newcommand{\uniform}[1]{\mathcal{U}\lparen#1\rparen} % uniform distribution over the set #1
+\newcommand{\zstructsnum}[1]{\zstructsnumsym(#1)} % number of Z structures of graph #1
+\newcommand{\zstructsnumsym}{\mathsf{Z}} % symbol for number of Z structures
+
+\newsavebox\wigglybox%
+\savebox\wigglybox{%
+\begin{tikzpicture}[line width=0.15pt,smooth]
+  \draw[semithick,decoration={zigzag,segment length=1.2,amplitude=.3},decorate]
+    (0,0) -- (0.15,0);
+\end{tikzpicture}%
+}
+\newcommand\wiggly[1]{\accentset{\mathbin{\usebox\wigglybox}}{#1}}

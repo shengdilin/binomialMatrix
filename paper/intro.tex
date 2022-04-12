@@ -1,0 +1,82 @@
+%! TEX root = diffusr.tex
+\section{Introduction}\label{sec:intro}
+
+Knowledge discovery results obtained from a dataset (e.g., patterns,
+clusters, anomalies) should be \emph{statistically validated} in order to ensure
+that they are not just due to the randomness in the data-generating
+process~\citep{GionisMMT07,HamalainenW19,PellegrinaRV19b}: the goal of the
+analysis is to \emph{gain knowledge of this process through the observed
+dataset}, rather than knowledge of the dataset itself.
+
+One such validation subjects the results to \emph{statistical hypothesis
+tests}~\citep[Ch.\ 10]{Wasserman05} (see \cref{sec:prelims:significant}):
+results that pass the tests are marked as \emph{(statistically) significant}, as
+there is evidence that they give information on the data generating process.
+
+The significance of the results is assessed against a \emph{null model} (see
+\cref{sec:prelims:significant}), which is a collection of \emph{possible}
+datasets that the unknown process \emph{may} generate, and a probability
+distribution over this collection. The null model captures, in some sense, what
+is assumed or already known about the data generating process, and the results
+are assessed against it to understand in what way they cannot be explained by
+the existing knowledge or assumptions.
+
+The choice of the null model made by the user must be \emph{deliberate and informed},
+as the meaning of ``statistically significant'' depends on the null model. For
+example, the results deemed significant under one null model cannot in general
+be compared to those deemed significant under a different null model.
+Nevertheless, as the aphorism says: ``all models are wrong, but some are
+useful'' (George E.\,P.\ Box), and some null models may be more appropriate for
+testing the significance of the results than others, because they more closely
+represent the settings of the task. It is therefore important that users have
+access to a variety of null models and are informed of the differences between
+them, in order to be able to select the more appropriate one for their needs. In
+this work, we introduce a null model for testing the significance of results
+obtained from \emph{binary transactional datasets}, such as (but not limited to)
+collections of frequent itemsets~\citep{AgrawalS94}. A null model is, in some sense,
+independent from the task whose results one wants to validate, as a null model
+is a set of datasets, not results, but is used to evaluate results. Our model is
+more appropriate for evaluating the results of common tasks on transactional
+datasets than existing ones~\citep{GionisMMT07}, as we explain in the
+\emph{Contributions} paragraph and in \cref{sec:gionis}.
+
+Many statistical hypothesis tests are based on
+\emph{resampling}~\citep{WestfallY93}: they analyze multiple datasets drawn
+from the null model distribution, in order to approximate the distribution of
+the test statistic and compare its value in the observed data against such
+distribution. Thus, it is necessary to develop computationally-efficient
+procedures for sampling such datasets from the null model distribution.
+
+\paragraph{Contributions} We study the problem of evaluating the significance of
+results extracted from unlabeled transactional datasets using resampling-based
+statistical hypothesis tests.
+
+\begin{itemize}
+  \item We introduce a novel null model that preserves transaction lengths and
+    item supports, but does not suffer from  the \emph{distortion} introduced by
+    equating the set of datasets and the set of binary matrices (see
+    \cref{sec:related,sec:gionis}), and is therefore more appropriate for
+    evaluating the results of knowledge discovery tasks on transactional
+    datasets. The user can specify \emph{any} distribution over the set of
+    datasets.
+  \item We present \algo\ (for \emph{Di}stortion-\emph{F}ree
+    % 20211117 MR: manual line break in the following line, due to the \emph.
+    \emph{S}wap \emph{R}andomiza-\\tion), a set of algorithms for sampling datasets
+    from the null model we introduce. Our algorithms are based on
+    \emph{swap-randomization} (\cref{sec:diffusr}). Our algorithms take a
+    Markov-Chain Monte-Carlo (MCMC) approach on appropriately-defined Markov
+    chains (see \cref{sec:prelims:markov}) over either the set of binary
+    matrices (for our ``na\"{\i}ve'' algorithm), or the set of datasets (for our
+    ``refined'' algorithm), whose stationary distribution is the user-specified
+    sampling distribution.
+  \item Our algorithms can be seen as the core of procedures to assess the
+    statistical validity of data mining results using a resampling
+    approach~\citep{WestfallY93} (see \cref{sec:prelims:significant}). To show
+    the usefulness of our algorithms, we focus on the task of evaluating the
+    significance of the number of frequent itemsets in a dataset, by
+    computing an empirical $p$-value of this statistic.
+  \item The results of our experimental evaluation show that the distortion
+      issue is very relevant and affects the outcome of the testing of data mining
+      results. \algo\ does not suffer from it, while being fast, (empirically)
+      rapidly-mixing, and scalable as the dataset grows.
+\end{itemize}

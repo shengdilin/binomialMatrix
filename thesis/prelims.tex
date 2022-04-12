@@ -1,0 +1,219 @@
+%! TEX root = thesis.tex
+\chapter{Preliminaries}\label{sec:prelims}
+
+We now introduce the main concepts used in the work. To exemplify the
+application of \algo, we focus on the task of evaluating whether the size of the
+collection of frequent itemsets in an observed dataset is statistically
+significant. We choose this task because it allows for a self-contained
+presentation that is accessible also to non-experts, rather than describing an
+arguably more interesting, but certainly more convoluted task such as mining
+statistically-significant frequent patterns. We remark that \algo\ can be used
+to validate any kind of results obtained from transactional datasets, including
+mining statistically-significant frequent patterns (not necessarily itemsets),
+evaluating the correlations between different items, and much more (see also
+\cref{sec:extensions}).
+
+Let $\items \doteq \{a_1, \dotsc, a_{\colsnum}\}$ be a finite \emph{alphabet}
+of $\colsnum \doteq \card{\items}$ \emph{items}. Without loss of generality, we
+can assume $\items = \{1, \dotsc, \colsnum\}$. An \emph{itemset} $A \subseteq
+\items$ is any non-empty subset of $\items$. A
+\emph{dataset} $\dataset \doteq \{t_1, \dotsc, t_{\rowsnum} \}$ is a finite
+\emph{bag} of $\rowsnum \doteq \card{\dataset}$ itemsets which, as the elements
+of $\dataset$, are known as \emph{transactions}. An itemset $A$ \emph{appears}
+in a transaction $t$ when $A \subseteq t$. The \emph{support
+$\supp{\dataset}{A}$ of itemset $A$ in dataset $\dataset$} is the number of
+transactions of $\dataset$ in which $A$ appears, i.e.,
+\[
+  \supp{\dataset}{A} \doteq \card{\{ t \in \dataset \suchthat A \subseteq t \}}
+  \enspace.
+\]
+Given a \emph{minimum support threshold} $\thresh \in [1, \card{\dataset}]$, the
+set $\fis{\thresh}{\dataset}$ of \emph{frequent itemsets in $\dataset$ w.r.t.\
+$\thresh$} is the set of itemsets that have support at least $\thresh$ in
+$\dataset$, i.e.,
+\[
+  \fis{\thresh}{\dataset} \doteq \left\{ A \subseteq \items, A \neq \emptyset\ :\
+    \supp{\dataset}{A} \ge \thresh \right\} \enspace.
+\]
+
+As an example, suppose we have an alphabet $\items = \{1, 2, 3\}$ and a dataset
+$\dataset = \{\{1, 2\}, \{1, 3\}, \{3\}\}$. The support $\supp{\dataset}{\{1\}}$
+of itemset $\{1\}$ in dataset $\dataset$ equals 2, since itemset $\{1\}$ appears
+in only two transactions of $\dataset$: $\{1, 2\}$ and $\{1, 3\}$. By similar
+reasoning, we also have that $\supp{\dataset}{\{1, 2\}} = 1$. With the same
+dataset $\dataset$, the set of frequent itemsets $\fis{1}{\dataset}$ in
+$\dataset$ w.r.t.\ a minimum support threshold of 1 equals $\{\{1\}, \{2\},
+\{3\}, \{1, 2\}, \{1, 3\}\}$, because each itemset in the set appears at least
+once in $\dataset$. Similarly, we also have that $\fis{2}{\dataset} = \{\{1\},
+\{3\}\}$ and $\fis{3}{\dataset} = \emptyset$.
+
+\section{Null Models and Significant Results}\label{sec:prelims:significant}
+
+Statistical significance is assessed w.r.t.\ a user-specified \emph{null model}.
+A null model is, for our purposes, a pair $\nullmodel \doteq (\nullset,
+\nullprob)$, where $\nullset$ is a set of datasets,  known as the \emph{null
+set} or \emph{null space}, and $\nullprob$ is a probability distribution over
+$\nullset$. In the setting we consider, there is one fixed \emph{observed
+dataset} $\odataset$, and the null set $\nullset$ is such that $\odataset \in
+\nullset$ and $\nullset$ contains all and only datasets that share some
+characteristic properties with $\odataset$. Thus, the null model depends on the
+observed dataset $\odataset$. We follow all previous work and only consider null
+models where $\nullset$ contains all and only the datasets $\dataset$ such that
+\begin{itemize}
+  \item $\card{\dataset} = \card{\odataset} = \rowsnum$, i.e., $\dataset$ has
+    the same \emph{size}, i.e., number $\rowsnum$ of transactions, as
+    $\odataset$; and
+  \item if we let $\dataset=\{t_1, \dotsc, t_\rowsnum\}$ and $\odataset =
+    \{\mathring{t}_1, \dotsc, \mathring{t}_\rowsnum\}$, there is a
+    \emph{permutation} $\rho$ of $\{1, \dotsc, \rowsnum\}$ such that $\card{t_i}
+    = \card{\mathring{t}_{\rho(i)}}$ for $1 \le i \le \rowsnum$, i.e.,
+    $\dataset$ has the same \emph{distribution of transaction lengths} as
+    $\odataset$; and
+  \item $\supp{\dataset}{\{a\}} = \supp{\odataset}{\{a\}}$, for every
+    \emph{item} $a \in \items$, i.e., each item has the same support in
+    $\dataset$ and $\odataset$.
+\end{itemize}
+We call such null models ``Size, Length and Item-Supports Preserving'' (SLISP).
+Given $\odataset$, all SLISP null models for $\odataset$ have \emph{the same
+null set $\nullset$}, i.e., they differ only in the distribution $\nullprob$
+over $\nullset$. The user may specify any distribution $\nullprob$ over
+$\nullset$, although previous work mostly focused on $\nullprob$
+being the uniform distribution over $\nullset$.
+
+Continuing our running example, suppose we observe dataset $\odataset = \{\{1,
+2\}, \{1, 3\}, \{3\}\}$. The following are three examples of datasets in the
+null set $\nullset$ (which also includes other datasets)
+\[
+  \{\{1, 2\}, \{1, 3\}, \{3\}\},\ \{\{1, 3\}, \{1, 3\}, \{2\}\},\ \text{and}\
+  \{\{2, 3\}, \{1, 3\}, \{1\}\}.
+\]
+Each of these datasets preserve the size, distribution of transaction lengths,
+and item supports of the observed dataset $\odataset$. The observed dataset
+$\odataset$ itself is in the null set $\nullset$.
+
+When using statistical hypothesis testing to assess the validity of knowledge
+discovery results, one is interested in understanding how ``typical'' the
+results from $\odataset$ are with respect to the distribution of the results
+from datasets sampled from the null model $\nullmodel$: if they are not
+``typical'', the results are considered \emph{significant} (under the assumed
+null model). For example, if we want to assess whether the number
+$\card{\fis{\thresh}{\odataset}}$ of frequent itemsets w.r.t.\ $\thresh$ in
+$\odataset$ is significant, we could make the \emph{null hypothesis}
+\begin{equation}\label{eq:nullhyp}
+  H_0 \doteq \text{``} \card{\fis{\thresh}{\odataset}} = \mathbb{E}_{\dataset
+    \sim \nullprob}[ \card{\fis{\thresh}{\dataset}}] \text{''},
+\end{equation}
+and then perform a \emph{statistical hypothesis test} to assess whether there is
+evidence that this null hypothesis is true. If it is not, we \emph{reject} it
+and say that the value $\card{\fis{\thresh}{\odataset}}$ appears significant.
+
+One way to perform such a test is to approximate the distribution of the
+statistic of interest (in this case, the number of frequent itemsets) by
+\emph{sampling datasets from the null model}~\citep{WestfallY93}, and then
+compare the observed statistic $\card{\fis{\thresh}{\odataset}}$ to the
+(empirical) distribution, as follows. Assume to sample a collection $\mathcal{T}
+\doteq \{ \dataset_1, \dotsc, \dataset_\ell \}$ of $\ell$ datasets independently
+from $\nullset$ according to $\nullprob$. The \emph{(empirical)} $p$-value
+$\epval{\odataset}{\mathcal{T}}$ is defined as the fraction of datasets in
+$\mathcal{T} \cup \{\odataset\}$ with a number of frequent itemsets w.r.t.\
+$\thresh$ that is not smaller than the one observed in $\odataset$, i.e.,
+\[
+  \epval{\odataset}{\mathcal{T}} \doteq \frac{1 + \card{\{1 \le i \le \ell
+    \suchthat \card{\fis{\thresh}{\dataset_i}} \ge
+  \card{\fis{\thresh}{\odataset}}\}}}{1 +
+    \ell} \enspace.
+\]
+Let now $\alpha \in (0,1)$ be a user-specified \emph{acceptable probability of
+error}. If $\epval{\odataset}{\mathcal{T}} \le \alpha$, then we say that
+$\card{\fis{\thresh}{\odataset}}$  is significant at level $\alpha$, which can
+interpreted as meaning that there is evidence that the null hypothesis
+from~\eqref{eq:nullhyp} is false and should be rejected. The value $\alpha$ is
+the probability of committing a \emph{false discovery}, i.e., of wrongly
+declaring the observed results significant when they are not.
+
+In the situation we just considered, there was a single null hypothesis, but it
+is often the case that \emph{multiple} hypotheses must be tested. For example,
+in significant pattern mining (see \cref{sec:related}), there is one hypothesis
+per pattern. In this case, one wants guarantees on the \emph{Family-Wise Error
+Rate} (FWER), i.e., on the probability of making \emph{any} false discovery. To
+ensure that the FWER is bounded by an user-specified threshold $\delta \in
+(0,1)$, the $p$-value of each hypothesis to be tested is compared to an
+\emph{adjusted critical value} $\alpha(\nullmodel, \mathcal{H}, \delta)$, where
+$\mathcal{H}$ is the set of the null hypotheses of interest. For example, the
+classic \citeauthor{Bonferroni37} correction~\citep{Bonferroni37} uses $\delta /
+\card{\mathcal{H}}$ as the adjusted critical value. We discussed the limitations of
+this approach in \cref{sec:related}. \emph{Resampling
+approaches}~\citep{WestfallY93} solve those issues by computing adjusted
+critical values using \emph{datasets sampled} according to $\nullprob$, and they
+have been used with success in significant itemset
+mining~\citep{PellegrinaRV19b}.
+
+Regardless of how many hypotheses are tested, this discussion shows that
+\emph{efficient} procedures to draw datasets from $\nullset$ independently
+according to $\nullprob$ are needed for assessing the statistical validity of
+results obtained from these datasets. Developing such procedures is the goal of
+our work.
+
+\section{Markov-Chain-Monte-Carlo and
+Metropolis-Hastings}\label{sec:prelims:markov}
+
+All sampling procedures we discuss follow the \emph{Markov-Chain-Monte-Carlo}
+(MCMC) approach using the \emph{Metropolis-Hastings (MH) algorithm}. We give
+here a description \emph{tailored to our needs}, and refer the reader to
+\citep[Ch.\ 7 and 10]{MitzenmacherU05} for a general discussion.
+
+A (finite, time-homogeneous) Markov chain is a sequence $(X_0, X_1, X_2,
+\dotsc)$ of random variables taking values over a (finite) set $\states$, such
+that the \emph{state} $X_t$  at \emph{time step} $t \in \mathbb{N}$ depends
+\emph{only} on the state $X_{t-1}$ at time $t-1$. W.l.o.g., we can assume that
+$\states = \{0,1,2,\dotsc,\card{\states}\}$. For any two states $i,j \in
+\states$, the \emph{transition probability} $P_{i,j}$ is the conditional
+probability that $X_t = j$ given that $X_{t-1} = i$, for any time step $t$. The
+transition matrix $\mathbf{P}$ is the $\card{\states} \times \card{\states}$
+matrix whose $(i,j)$ entry is $P_{i,j}$. Given $\mathbf{P}$, we can define a
+directed weighted graph $G=(\states, E, \mathsf{w})$, where $(i,j) \in E$ iff
+$P_{i,j}>0$. The weight $\mathsf{w}(i,j)$ for any $(i,j) \in E$ is $P_{i,j}$. If
+the neighborhood structure (i.e., $E$) and the transition matrix $\mathbf{P}$
+have some specific properties,\footnote{Formally, if the chain is
+  \emph{irreducible and aperiodic}~\citep[Thm.\ 7.7]{MitzenmacherU05}. All
+Markov chains we consider have these properties.} then there is one and only
+one $\statprob$ such that $\statprob = \statprob \mathbf{P}$. The vector
+$\statprob$ is a probability distribution over $\states$ known as the (unique)
+\emph{stationary distribution} of the Markov chain. It represents the
+distribution of the state $X_t$ as $t \to \infty$.
+
+Here is the idea behind MCMC sampling with MH\@. Suppose that we want to sample
+from a population $\population$, according to a distribution $\samplprob$ over
+$\population$. MH designs a Markov chain with state space $\states=\population$
+and stationary distribution $\statprob=\samplprob$. Let $t$ be a time step
+sufficient for the distribution of the state of the chain to be the stationary
+distribution. Then, $X_t$ is a sample of $\population$ according to $\samplprob$.
+
+To use MCMC sampling with MH, one must first specify an initial neighborhood
+structure for $\population$, which is usually ``naturally'' imposed by
+properties of $\population$: if one element $a \in \population$ can be obtained
+by a ``simple modification'' to another element $b$, there should likely be an
+edge from $b$ to $a$ in the weighted directed graph representing the Markov
+chain. The definition of ``simple modification'' depends on the settings.
+Additionally, for each element $a \in \population$, one must specify a
+probability distribution $\neighprob_a$ over the out-neighbors of $a$.
+MH uses the specified neighborhood structure, with the addition
+of \emph{self-loops} from each $a \in \population$ to itself, if not already
+present. It gives a way to (implicitly) set the transition probabilities so that
+the stationary distribution $\statprob$ of the resulting Markov chain is the
+desired sampling distribution $\samplprob$. Specifically, at each step $t$, the
+next state $X_{t+1}$ is chosen in two phases. First, a \emph{(out-) neighbor}
+$b$ of $X_t=a$ is chosen by sampling according to the distribution
+$\neighprob_a$ over the out-neighbors of $a$. Then, $X_{t+1}$ is set to $b$ with
+probability
+\begin{equation}\label{eq:metropolis}
+  \min \left\{1, \frac{\samplprob(b) \neighprob_b(a)}{\samplprob(a)
+  \neighprob_a(b)} \right\},
+\end{equation}
+otherwise $X_{t+1}=a$.
+
+Thus, the necessary ``ingredients'' to use MH are the population $\population$,
+the sampling distribution $\samplprob$, the initial neighbor structure, and the
+distribution $\neighprob_a$ for every $a \in \population$. In the next chapter,
+we describe algorithms for sampling datasets from SLISP null models and for each
+of them we define these ingredients.

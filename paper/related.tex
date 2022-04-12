@@ -1,0 +1,87 @@
+%! TEX root = diffusr.tex
+\section{Related work}\label{sec:related}
+
+Evaluating the statistical significance of results obtained by mining
+transactional datasets has been recognized as important soon after the first
+efficient mining algorithms were introduced. For example, \citet{BrinMS97}
+use the chi-square test to assess the significance of association rules, while
+\citet{MegiddoS98} use statistical significance testing to measure the number of
+false discoveries.
+
+Many measures of interestingness, both for individual patterns and for sets of
+patterns~\citep{KontonasiosSDB12,TanKS04,VreekenT14}, were introduced with the
+goal of mitigating the pattern explosion observed when using frequency as a
+proxy of interestingness, but they do not offer the strict statistical
+guarantees that allow precise statements about the interestingness of a pattern
+w.r.t.\ the data generation process.
+
+The framework of statistical hypothesis testing~\citep[Ch.\ 10]{Wasserman05}
+offers such guarantees, and is now the de facto standard taken by works in
+statistically-significant pattern mining~\citep{HamalainenW19,PellegrinaRV19b}.
+The area of statistical pattern mining can be split into two classes, depending
+on whether each transaction in the dataset is associated to a (binary or real)
+label. Our method \algo\ works on \emph{unlabeled} datasets thus it can be used
+for mining significant patterns in this setting, but many works studied the
+labeled
+case~\citep{LlinaresLopezSPB15,MinatoUTTS14,PellegrinaV20,PellegrinaRV19a,TeradaOHTS13,WuHGLZY16,KomiyamaIANM17}.
+To keep the presentation focused, we only discuss contributions for unlabeled
+datasets. The tutorial by \citet{PellegrinaRV19b} offers an in-depth
+presentation of the labeled case.
+
+Mining significant patterns requires \emph{testing multiple hypotheses}, one per
+pattern. Due to the randomness of the data generation process, and the fact that
+one only has access to the observed dataset, it is necessary to accept the
+possibility of wrongly marking a pattern as significant even if it is not, i.e.,
+of making a \emph{false discovery} involving that pattern, or, equivalently,
+that the pattern is a \emph{false positive}. Algorithms for significant pattern
+mining must therefore give \emph{probabilistic guarantees} on the presence of
+false positives in their output. The most common of such guarantees is a bound
+on the \emph{Family-Wise Error Rate (FWER)}, i.e., on the probability that the
+output collection contains \emph{any} false positives. In pattern mining,
+\citet{Webb06,Webb07}, \citet{Hamalainen10}, \citet{LowKRKP13}, and many others
+(see the tutorial by \citet{HamalainenW19}) present methods to control the FWER
+using the \emph{Bonferroni correction}~\citep{Bonferroni37}. This approach, even
+when refined~\citep{Holm79,Webb08}, does not take into account dependencies and
+correlations among hypotheses, i.e., the \emph{structure} of the hypothesis
+class, which is very rich for the classes associated to patterns. Additionally,
+these classes contain many patterns that would never be marked as significant
+(e.g., because they do not appear in the observed dataset), thus using the
+Bonferroni correction, while controlling the FWER to the desired level, results
+in low statistical power, i.e., in not marking many true significant patterns as
+such. One alternative is to control the False Discovery Rate (FDR), i.e., the
+expected number of false positives, as proposed by \citet{KirschMPPUV12}. The
+FDR is a less stringent guarantee than the FWER, thus is only appropriate in
+some settings, while controlling the FWER is required in many cases. Resampling
+methods~\citep{WestfallY93} take into account the structure of the hypothesis
+class and offer high statistical power, while still bounding the FWER\@. \algo\
+is designed to be used in such methods.
+
+The resampling method by \citet{GionisMMT07}, while it can be used as the  core
+component of a significant pattern mining algorithm, it is, like our work, more
+generic and useful for assessing the validity of data mining results. They
+do not discuss controlling the FWER, a void filled by \citet{Hanhijarvi11}.
+\citet{GionisMMT07} look at transactional datasets as binary matrices, and
+consider the null model composed by \emph{all} such matrices with the same row
+and column sums (a.k.a., margins) as the observed dataset. We discuss
+\citet{GionisMMT07}'s method in detail in \cref{sec:gionis}. The issue with this
+approach that we identify and solve is that the space of matrices with
+constrained margins does not actually have a one-to-one correspondence with the
+space of transactional datasets with the same transaction lengths and item
+frequencies, thus creating a \emph{distortion} of the latter space, and
+effectively leading to performing statistical tests w.r.t.\ a \emph{different}
+null model. The statistical significance of the observed results depends on the
+null model, thus the distortion may make results that are not actually
+significant appear as such, and vice versa. Our algorithms are
+\emph{distortion-free} and sample w.r.t.\ the intended null model.
+
+The randomization approach by \citet{GionisMMT07} has been extended to other
+types of data (database tables~\citep{OjalaGGM10}, real-valued and mixed-value
+matrices~\citep{OjalaVKHM08,Ojala10},
+graphs~\citep{HanhijarviGP09,GunnemannDJE12}, genomic
+data~\citep{FerkingstadHS15}), to different kinds of patterns
+(sequences~\citep{TononV19}, subgroups~\citep{DuivesteijnK11}), and to the
+iterative setting~\citep{HanhijarviOVPTM09}.  The  distortion issue affecting
+\citet{GionisMMT07}'s approach is also present in many of these methods, and our
+proposed solution can be adapted to these cases. We discuss some of them in
+\cref{sec:extensions}, but due to space limitations, we postpone an in-depth
+treatment to the extended version of this work.

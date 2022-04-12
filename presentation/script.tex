@@ -1,0 +1,269 @@
+\documentclass{article}
+
+\title{Presentation Script}
+\author{Alexander Lee}
+
+\begin{document}
+
+\maketitle
+
+\section*{Title Slide}
+
+Hello everyone, my name is Alex. For my thesis, I've been working on
+Distortion-Free Swap Randomization for Statistically-Testing Data Mining
+Results with my advisor Professor Matteo Riondato.
+
+\section*{Motivation}
+
+To begin, let us consider a few motivational questions. Suppose we are given the
+set of gene mutations for each patient in a medical study and we want to know
+which sets of mutations are interesting. Similarly, suppose we are given
+purchases at a supermarket and we would like to know which sets of items are
+brought frequently together. These questions can be answered using methods from
+data mining. To do so, we need to first develop a better understanding of the
+type of data we are working with.
+
+\section*{Transactional Datasets}
+
+We start with a few definitions. It may be helpful to consider these definitions
+in the context our previous supermarket example to develop some intuition.
+First, we define an alphabet, which is a set of $n$ items. Without loss of
+generality, we can assume these items can be labeled from 1 to $n$. An itemset
+is any non-empty subset of our alphabet. A dataset is therefore a bag of $m$
+itemsets called transactions. Here, a bag is a set that may contain duplicate
+items, so the same transaction may appear more than once. To give a concrete
+example, consider the following alphabet and dataset. This dataset can also be
+represented as the following binary matrix, where a transaction contains a 1
+under a column if the transaction contains the item corresponding to that
+column, and 0 otherwise. This dataset can also be represented with this other
+matrix, where the order of transactions $t_1$ and $t_2$ have been switched
+relative to the first matrix. We can do this because datasets are bags of
+transactions, so the transactions do not have a defined order. There are other
+matrix representations not shown as well.
+
+\section*{Frequent Itemsets}
+
+We say an itemset appears in a transaction if the itemset is a subset of the
+transaction. The support of an itemset in the dataset is thus the number of
+transactions of the dataset in which the itemset appears. To give an example,
+the itemset of containing only 1 has a support of 2 since it appears in
+transactions $t_1$ and $t_2$. The second example follows similarly. Finally, we
+define the set of frequent itemsets in the dataset with respect to a minimum
+support threshold as the set of itemsets that have support at least the minimum
+support threshold in the dataset. For example, the set of frequent itemsets with
+respect to a minimum support threshold of 1 is the following set since each
+itemset appears at least once in the dataset. The other examples follow in the
+same way. These definitions can almost be directly applied to our previous
+question of finding the sets of items that are bought frequently together.
+Without too much work, we can also apply these definitions to the gene mutation
+question and many other similarly phrased questions.
+
+\section*{Knowledge of the Dataset vs. Knowledge of the Data Generation Process}
+
+However, knowing the set of frequent itemsets for our dataset does not tell us
+much. It only gives us information about the observed dataset itself. Keep in
+mind that this observed dataset is a noisy, partial representation of the
+process that generated this dataset. Our real goal is to therefore gain
+knowledge of this process. We can do so by modeling this process using the
+observed dataset to statistically validate results via a hypothesis testing
+framework.
+
+\section*{Null Model}
+
+More formally, a data generation process is a process that outputs a dataset
+with some probability distribution over a set of datasets. To model this
+process, we introduce what we call a null model, which is a pair where we have a
+set of datasets known as the null set and a probability distribution over the
+set of datasets. Here, the null set is defined in the following way. Given an
+observed dataset, the null set contains all and only datasets such that the each
+dataset has the same size, i.e., the number of transactions as the observed
+dataset; and each dataset has the same distribution of transaction lengths as
+the observed dataset; and each item has the same support in the dataset and the
+observed dataset. For this talk, we will assume that the probability
+distribution for the null model is the uniform distribution over the null set.
+However, this distribution can be any user-specified distribution over the null
+set.
+
+\section*{Significant Results}
+
+Informally, statistical hypothesis testing asks the question: how typical are
+the results from the observed dataset with respect to the datasets from the null
+model? If a result is not typical, it is considered significant. Now, what
+exactly do we mean when we say ``typical''? From a probabilistic lens, we can
+think of ``typical'' as the expected value with respect to the datasets in the
+null model. For example, if we want to know whether the number of frequent
+itemsets in our observed dataset is significant, we can develop a hypothesis,
+known as the null hypothesis. The null hypothesis says that the number of
+frequent itemsets in the observed dataset is equal to the expected value with
+respect to datasets in the null model of the number of frequent itemsets. But
+how exactly do we measure whether a result is typical? This is where the
+$p$-value comes into play. The $p$-value is the probability, conditioned on the
+null hypothesis, of seeing the results from the observed dataset or something
+even more extreme. In our running example, the $p$-value is thus the probability
+with respect to the datasets in the null model of seeing a number of frequent
+itemsets greater than or equal to the number of frequent itemsets in the
+observed dataset given our null hypothesis. It follows that a small $p$-value
+means that there is evidence that the null hypothesis is false. That is, the
+observed result is not typical.
+
+\section*{The Critical Value}
+
+However, even with a small $p$-value, the null hypothesis may still be true.
+In this case, we are at risk of making a false discovery, which is wrongly
+declaring the observed results significant when they are not. To reduce the
+probability of making a false discovery, we use a critical value: a
+user-specified acceptable probability of committing a false discovery. With
+these ingredients, we can perform our hypothesis test and ask the following
+question: is the $p$-value less than or equal to the critical value? If yes,
+then the results are considered significant. That is, there is evidence that the
+null hypothesis may be false and should be rejected. If no, the results are not
+considered significant.
+
+\section*{Multiple Hypothesis Testing}
+
+To give another example, suppose we have the following question: is each
+frequent itemset in our set of frequent itemsets significant? Here, our null
+hypothesis would be that the support of the frequent itemset in the observed
+dataset is equal to the expected value with respect to the datasets in the null
+model of the support of that itemset. The $p$-value is hence the probability
+with respect to the datasets in the null model of seeing the support of the
+itemset being greater than or equal to the support of the frequent itemset in
+the observed dataset given the null hypothesis. Notice here that since we are
+curious about each frequent itemset, we have one hypothesis per pattern. That
+is, we are performing multiple hypothesis tests. In this setting, we want
+guarantees on the Family-Wise Error Rate i.e., on the probability of making any
+false discovery. The solution here is to thus compare the $p$-value of each
+hypothesis to an adjusted critical value.
+
+\section*{Computing the $p$-value}
+
+Regardless of whether or not we are performing multiple hypothesis tests, our
+key ingredient is the $p$-value. However, computing the $p$-value is expensive
+since we would need to consider all the datasets in null set. To address this
+issue, we can estimate the $p$-value by sampling datasets from the null model to
+approximate the distribution of the statistic of interest.
+
+\section*{Sampling Datasets from the Null Model: Existing Method}
+
+The existing method to sample datasets from the null model considers datasets as
+binary matrices, just as we did previously. Revisiting our previous example,
+given the following alphabet and dataset, we have here a matrix representation
+of the dataset. Because we are considering matrices instead of datasets, we need
+to define a null set on matrices rather than on datasets. We do so in the
+following way. Given an observed dataset, define the set of all binary matrices
+such that the row-sum of row $i$ equals the length of transaction $i$ for all
+$i$; and the column-sum of column $j$ equals the support of item $j$ for all
+$j$. To formally define the relationship between the set of matrices and the set
+of datasets, let dat be the function from the set of matrices to the set of
+datasets, which maps a matrix to its unique dataset. Considering the example
+above, dat of the matrix equals the dataset. The key operation of the existing
+method is a swap from a matrix $M$ in our set of matrices to a matrix $M'$ also
+in our set of matrices. Instead of going through the formal definition of a
+swap, let us look at an example. Suppose we have the following row and column
+indices. A swap from $M$ to $M'$ proceeds by looking at the 2 by 2 submatrix
+formed by the row and column indices and swapping the ones across the diagonal.
+With this key operation defined, the procedure executes in the following way.
+Repeatedly perform swaps chosen according to a well-defined distribution. After
+sufficiently many swaps, the obtained matrix is a uniform sample from our set of
+matrices. Therefore, we return the dataset of the matrix as a sample from our
+set of datasets. For those who are familiar, this method runs
+Markov-Chain-Monte-Carlo with Metropolis-Hastings.
+
+\section*{The Issue of Distortion}
+
+However, we claim that there is an issue with this method. Specifically,
+sampling a matrix uniformly at random from the set of matrices does not imply
+that the dataset of the matrix is sampled uniformly at random from the set of
+datasets. To prove this claim, we consider the following example. Suppose we
+have the following matrices $M$, $M'$, and $M''$. Suppose we observe the dataset
+of $M$. Thus, our set of matrices is defined by the dataset of $M$. Notice that
+both $M$ and $M'$ are in the set of matrices since they have the same row-sums
+and column-sums as $M$. Also notice that the dataset of $M$ and the dataset of
+$M'$ are the same dataset since the first two rows in matrix $M'$ are just
+the inverted rows of matrix $M$. Hence, at least two matrices in the set of
+matrices map to the same dataset. Further notice that $M''$ is in the set of
+matrices since it has the same row-sums and column-sums as $M$, and no other
+matrix in the set of matrices maps to the dataset of $M''$. That is, only one
+matrix in the set of matrices maps to the dataset of $M''$, namely $M''$.
+Therefore, there is a higher probability of sampling the dataset of $M$ than the
+dataset of $M''$ from the set of datasets. Sampling a dataset with a higher
+probability means that the procedure does not sample uniformly at random from
+the set of datasets. To summarize, the existing method samples from a distorted
+null model because it samples uniformly from the set of matrices instead of
+uniformly from the set of datasets. The core issue of the existing method is
+that it considers datasets as matrices, which implicitly assumes that
+transactions in datasets have a fixed order. However, datasets are unordered
+bags of transactions. The order of transactions is meaningless and not used for
+knowledge discovery tasks.
+
+\section*{Our Contribution: Sampling Without Distortion}
+
+To address the issue of distortion, we develop two methods to sample datasets
+without distortion. Our first method, referred to as the naive method, still
+samples form the set of matrices but corrects for the distortion by altering the
+sampling distribution. A challenge with this method is that now we need to
+compute the number of matrices that map to the same dataset. Our second method,
+called the refined method, directly removes the distortion by sampling uniformly
+from the set of datasets instead of the set of matrices. For this method, we now
+need to redefine a swap as an operation on datasets instead of matrices and
+develop methods to select a random swap. Due to time constraints and we will
+only discuss the naive method since it is easier to comprehend.
+
+\section*{Our Naive Method}
+
+The intuition behind the naive method is that the probability of sampling a
+dataset should be spread among the number of matrices that map to the same
+dataset. The goal is to therefore sample a matrix with the following
+probability: the original probability divided by the number of matrices that map
+to the same dataset as the matrix. The new procedure then proceeds similarly to
+the existing method. Repeatedly perform swaps chosen according to a well-defined
+distribution different from the existing method. After sufficiently many swaps,
+the obtained dataset of the matrix is a uniform sample from the set of datasets.
+Therefore, we return the dataset of the matrix as a sample from the set of
+datasets. Again, for those who are familiar, we are running
+Markov-Chain-Monte-Carlo with Metropolis-Hastings using a different stationary
+distribution.
+
+\section*{Experimental Evaluation}
+
+To assess our methods, we implement all methods in Java and use five publicly
+available benchmark datasets. Our experimental evaluation focuses on a couple
+points. First, verify the presence of the distortion. Second, estimate the
+mixing time, that is, the sufficient number of swaps to sample approximately
+according to the uniform distribution. Third, evaluate the speed of our methods
+by measuring the step time, which is the time to compute a swap. Fourth, assess
+the scalability of our methods by measuring how the step time changes as the
+dataset grows. Again, due to time constraints, we will only discuss the first
+two experiments.
+
+\section*{Experimental Evaluation: Distortion}
+
+Recall that distortion means that some datasets have different numbers of
+matrices that map to themselves. No distortion therefore means that all datasets
+have the same number of matrices that map to themselves. As such, to verify the
+presence of distortion, we need to look at the distribution of this value.
+Specifically, we look at the floor of the log of this value. Looking at the
+distribution for each dataset, we see that the is a clear presence of distortion
+due to the large variability in the distribution. Note that we are in log space,
+so the variability is even larger in absolute terms.
+
+\section*{Experimental Evaluation: Mixing Time}
+
+Next, we want to estimate the number of swaps to sample approximately according
+to the uniform distribution. To do so, we use a representative measure and see
+how many swaps are needed till the measure stabilizes. We won't specifically
+define this measure since it is not super interesting for the purposes of this
+talk. What is import is that this measure stabilizes. From the figures, we can
+see that all methods need $2w$ swaps to stabilize, where $w$ is the sum of the
+transaction lengths, which is pretty fast. A possible future direction is to
+prove an upper bound to the mixing time.
+
+\section*{Conclusion}
+
+To conclude, sampling datasets from the null model is crucial to evaluating the
+statistical validity of observed results. We want statistically correct as well
+as computationally efficient methods to sample datasets. The current method
+suffers from distortion when sampling datasets, so we develop new methods to
+sample without distortion.
+
+\end{document}

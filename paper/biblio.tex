@@ -1,0 +1,365 @@
+%! TEX root = diffusr.tex
+
+\begin{thebibliography}{37}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx\showCODEN\undefined\def\showCODEN#1{\unskip}\fi
+\ifx\showDOI\undefined\def\showDOI#1{#1}\fi
+\ifx\showISBNx\undefined\def\showISBNx#1{\unskip}\fi
+\ifx\showISBNxiii\undefined\def\showISBNxiii#1{\unskip}\fi
+\ifx\showISSN\undefined\def\showISSN#1{\unskip}\fi
+\ifx\showLCCN\undefined\def\showLCCN#1{\unskip}\fi
+\ifx\shownote\undefined\def\shownote#1{#1}\fi
+\ifx\showarticletitle\undefined\def\showarticletitle#1{#1}\fi
+\ifx\showURL\undefined\def\showURL{\relax}\fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Agrawal and Srikant(1994)]%
+        {AgrawalS94}
+\bibfield{author}{\bibinfo{person}{R. Agrawal} {and}
+  \bibinfo{person}{R. Srikant}.} \bibinfo{year}{1994}\natexlab{}.
+\newblock\showarticletitle{Fast Algorithms for Mining Association Rules in
+  Large Databases}. In VLDB'94.
+
+\bibitem[Bonferroni(1936)]%
+        {Bonferroni37}
+\bibfield{author}{\bibinfo{person}{C.\ E. Bonferroni}.}
+  \bibinfo{year}{1936}\natexlab{}.
+\newblock\showarticletitle{Teoria statistica delle classi e calcolo delle
+  probabilit{\`a}}.
+\newblock\bibinfo{journal}{\emph{Pubb.\ R.\ Inst.\ Sup.\ Sci.\ Econ. Commerc.\
+Firenze}}  \bibinfo{volume}{8} (\bibinfo{year}{1936}), \bibinfo{pages}{3--62}.
+
+\bibitem[Brin et~al\mbox{.}(1997)]%
+        {BrinMS97}
+\bibfield{author}{\bibinfo{person}{S. Brin}, \bibinfo{person}{R.
+  Motwani}, {and} \bibinfo{person}{C. Silverstein}.}
+  \bibinfo{year}{1997}\natexlab{}.
+\newblock\showarticletitle{Beyond market baskets: Generalizing association
+  rules to correlations}. In SIGMOD'97.
+
+\bibitem[Duivesteijn and Knobbe(2011)]%
+        {DuivesteijnK11}
+\bibfield{author}{\bibinfo{person}{W. Duivesteijn} {and}
+  \bibinfo{person}{A. Knobbe}.} \bibinfo{year}{2011}\natexlab{}.
+\newblock\showarticletitle{Exploiting False Discoveries --- Statistical
+  Validation of Patterns and Quality Measures in Subgroup Discovery}. In
+  ICDM'11.
+
+\bibitem[Ferkingstad et~al\mbox{.}(2015)]%
+        {FerkingstadHS15}
+\bibfield{author}{\bibinfo{person}{E. Ferkingstad}, \bibinfo{person}{L. Holden},
+  {and} \bibinfo{person}{G. K. Sandve}.}
+  \bibinfo{year}{2015}\natexlab{}.
+\newblock\showarticletitle{{Monte Carlo} Null Models for Genomic Data}.
+\newblock\bibinfo{journal}{\emph{Statist. Sci.}} \bibinfo{volume}{30},
+  \bibinfo{number}{1} (\bibinfo{year}{2015}), \bibinfo{pages}{59--71}.
+
+\bibitem[Gionis et~al\mbox{.}(2007)]%
+        {GionisMMT07}
+\bibfield{author}{\bibinfo{person}{A. Gionis}, \bibinfo{person}{H. Mannila},
+  \bibinfo{person}{T. Mielik{\"a}inen}, {and} \bibinfo{person}{P. Tsaparas}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock\showarticletitle{Assessing data mining results via swap
+  randomization}.
+\newblock\bibinfo{journal}{\emph{ACM TKDD}} \bibinfo{volume}{1}, \bibinfo{number}{3}
+  (\bibinfo{year}{2007}), \bibinfo{pages}{14}.
+
+\bibitem[G{\"u}nnemann et~al\mbox{.}(2012)]%
+        {GunnemannDJE12}
+\bibfield{author}{\bibinfo{person}{S. G{\"u}nnemann},
+  \bibinfo{person}{P. Dao}, \bibinfo{person}{M. Jamali}, {and}
+  \bibinfo{person}{M. Ester}.} \bibinfo{year}{2012}\natexlab{}.
+\newblock\showarticletitle{Assessing the Significance of Data Mining Results
+  on Graphs with Feature Vectors}. In ICDM'12.
+
+\bibitem[H{\"a}m{\"a}l{\"a}inen(2010)]%
+        {Hamalainen10}
+\bibfield{author}{\bibinfo{person}{W. H{\"a}m{\"a}l{\"a}inen}.}
+  \bibinfo{year}{2010}\natexlab{}.
+\newblock\showarticletitle{{StatApriori}: an efficient algorithm for searching
+  statistically significant association rules}.
+\newblock\bibinfo{journal}{\emph{KAIS}}
+  \bibinfo{volume}{23}, \bibinfo{number}{3} (\bibinfo{year}{2010}),
+  \bibinfo{pages}{373--399}.
+
+\bibitem[H{\"a}m{\"a}l{\"a}inen and Webb(2019)]%
+        {HamalainenW19}
+\bibfield{author}{\bibinfo{person}{W. H{\"a}m{\"a}l{\"a}inen} {and}
+  \bibinfo{person}{G.\ I. Webb}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock\showarticletitle{A tutorial on statistically sound pattern
+  discovery}.
+\newblock\bibinfo{journal}{\emph{DMKD}}
+  \bibinfo{volume}{33}, \bibinfo{number}{2} (\bibinfo{year}{2019}),
+  \bibinfo{pages}{325--377}.
+
+\bibitem[Hanhij{\"a}rvi(2011)]%
+        {Hanhijarvi11}
+\bibfield{author}{\bibinfo{person}{S. Hanhij{\"a}rvi}.}
+  \bibinfo{year}{2011}\natexlab{}.
+\newblock\showarticletitle{Multiple hypothesis testing in pattern discovery}.
+  In DS'11.
+
+\bibitem[Hanhij{\"a}rvi et~al\mbox{.}(2009)]%
+        {HanhijarviGP09}
+\bibfield{author}{\bibinfo{person}{S. Hanhij{\"a}rvi},
+  \bibinfo{person}{G.\ C. Garriga}, {and} \bibinfo{person}{K. Puolam{\"a}ki}.}
+  \bibinfo{year}{2009}\natexlab{}.
+\newblock\showarticletitle{Randomization Techniques for Graphs}. In SDM'09.
+
+
+\bibitem[Hanhij\"{a}rvi et~al\mbox{.}(2009)]%
+        {HanhijarviOVPTM09}
+\bibfield{author}{\bibinfo{person}{S. Hanhij\"{a}rvi},
+  \bibinfo{person}{M. Ojala}, \bibinfo{person}{N. Vuokko},
+  \bibinfo{person}{K. Puolam\"{a}ki}, \bibinfo{person}{N. Tatti}, {and}
+  \bibinfo{person}{H. Mannila}.} \bibinfo{year}{2009}\natexlab{}.
+\newblock\showarticletitle{Tell Me Something {I} Don't Know: Randomization
+  Strategies for Iterative Data Mining}. In KDD'09.
+
+\bibitem[Holm(1979)]%
+        {Holm79}
+\bibfield{author}{\bibinfo{person}{S. Holm}.}
+  \bibinfo{year}{1979}\natexlab{}.
+\newblock\showarticletitle{A simple sequentially rejective multiple test
+  procedure}.
+\newblock\bibinfo{journal}{\emph{Scand.\ J. Stat.}}
+  \bibinfo{volume}{6}, \bibinfo{number}{2} (\bibinfo{year}{1979}),
+  \bibinfo{pages}{65--70}.
+
+\bibitem[Kirsch et~al\mbox{.}(2012)]%
+        {KirschMPPUV12}
+\bibfield{author}{\bibinfo{person}{A. Kirsch}, \bibinfo{person}{M.
+  Mitzenmacher}, \bibinfo{person}{A. Pietracaprina},
+  \bibinfo{person}{G. Pucci}, \bibinfo{person}{E. Upfal}, {and}
+  \bibinfo{person}{F. Vandin}.} \bibinfo{year}{2012}\natexlab{}.
+\newblock\showarticletitle{An efficient rigorous approach for identifying
+  statistically significant frequent itemsets}.
+\newblock\bibinfo{journal}{\emph{JACM}}
+  \bibinfo{volume}{59}, \bibinfo{number}{3} (\bibinfo{year}{2012}),
+  \bibinfo{pages}{1--22}.
+
+\bibitem[Komiyama et~al\mbox{.}(2017)]%
+        {KomiyamaIANM17}
+\bibfield{author}{\bibinfo{person}{J. Komiyama}, \bibinfo{person}{M.
+  Ishihata}, \bibinfo{person}{H. Arimura}, \bibinfo{person}{T.
+  Nishibayashi}, {and} \bibinfo{person}{S.-I. Minato}.}
+  \bibinfo{year}{2017}\natexlab{}.
+\newblock\showarticletitle{Statistical Emerging Pattern Mining with Multiple
+  Testing Correction}. In KDD'17.
+
+\bibitem[Kontonasios et~al\mbox{.}(2012)]%
+        {KontonasiosSDB12}
+\bibfield{author}{\bibinfo{person}{K.-N. Kontonasios},
+  \bibinfo{person}{E. Spyropoulou}, {and} \bibinfo{person}{T. De~Bie}.}
+  \bibinfo{year}{2012}\natexlab{}.
+\newblock\showarticletitle{Knowledge discovery interestingness measures based
+  on unexpectedness}.
+\newblock\bibinfo{journal}{\emph{{WIREs} DMKD}}
+  \bibinfo{volume}{2}, \bibinfo{number}{5} (\bibinfo{year}{2012}),
+  \bibinfo{pages}{386--399}.
+
+\bibitem[Megiddo and Srikant(1998)]%
+        {MegiddoS98}
+\bibfield{author}{\bibinfo{person}{N. Megiddo} {and}
+  \bibinfo{person}{R. Srikant}.} \bibinfo{year}{1998}\natexlab{}.
+\newblock\showarticletitle{Discovering predictive association rules}. In
+KDD'94.
+
+\bibitem[Llinares-L{\'o}pez et~al\mbox{.}(2015)]%
+        {LlinaresLopezSPB15}
+\bibfield{author}{\bibinfo{person}{F. Llinares-L{\'o}pez},
+  \bibinfo{person}{M.Sugiyama}, \bibinfo{person}{L. Papaxanthos},
+  {and} \bibinfo{person}{K. Borgwardt}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock\showarticletitle{Fast and memory-efficient significant pattern
+  mining via permutation testing}. In KDD'15.
+
+\bibitem[Low-Kam et~al\mbox{.}(2013)]%
+        {LowKRKP13}
+\bibfield{author}{\bibinfo{person}{C. Low-Kam}, \bibinfo{person}{C.
+  Ra{\"\i}ssi}, \bibinfo{person}{M. Kaytoue}, {and} \bibinfo{person}{J.
+  Pei}.} \bibinfo{year}{2013}\natexlab{}.
+\newblock\showarticletitle{Mining statistically significant sequential
+  patterns}. In ICDM'13.
+
+\bibitem[Minato et~al\mbox{.}(2014)]%
+        {MinatoUTTS14}
+\bibfield{author}{\bibinfo{person}{S.-I. Minato}, \bibinfo{person}{T.
+  Uno}, \bibinfo{person}{K. Tsuda}, \bibinfo{person}{A. Terada}, {and}
+  \bibinfo{person}{J. Sese}.} \bibinfo{year}{2014}\natexlab{}.
+\newblock\showarticletitle{A fast method of statistical assessment for
+  combinatorial hypotheses based on frequent itemset enumeration}. In
+  ECML'PKDD'14.
+
+\bibitem[Mitzenmacher and Upfal(2005)]%
+        {MitzenmacherU05}
+\bibfield{author}{\bibinfo{person}{M. Mitzenmacher} {and}
+  \bibinfo{person}{E. Upfal}.} \bibinfo{year}{2005}\natexlab{}.
+\newblock\bibinfo{booktitle}{\emph{Probability and Computing: Randomized
+  Algorithms and Probabilistic Analysis}}.
+\newblock\bibinfo{publisher}{Cambridge University Press}.
+
+\bibitem[Ojala(2010)]%
+        {Ojala10}
+\bibfield{author}{\bibinfo{person}{M. Ojala}.}
+  \bibinfo{year}{2010}\natexlab{}.
+\newblock\showarticletitle{Assessing Data Mining Results on Matrices with
+  Randomization}. In ICDM'10.
+
+\bibitem[Ojala et~al\mbox{.}(2010)]%
+        {OjalaGGM10}
+\bibfield{author}{\bibinfo{person}{M. Ojala}, \bibinfo{person}{G.\ C.
+  Garriga}, \bibinfo{person}{A. Gionis}, {and} \bibinfo{person}{H.
+  Mannila}.} \bibinfo{year}{2010}\natexlab{}.
+\newblock\showarticletitle{Evaluating Query Result Significance in Databases
+  via Randomizations}. In SDM'10.
+
+\bibitem[Ojala et~al\mbox{.}(2008)]%
+        {OjalaVKHM08}
+\bibfield{author}{\bibinfo{person}{M. Ojala}, \bibinfo{person}{N.
+  Vuokko}, \bibinfo{person}{A. Kallio}, \bibinfo{person}{N. Haiminen},
+  {and} \bibinfo{person}{H. Mannila}.} \bibinfo{year}{2008}\natexlab{}.
+\newblock\showarticletitle{Randomization of real-valued matrices for assessing
+  the significance of data mining results}. In SDM'08.
+
+\bibitem[Pellegrina et~al\mbox{.}(2019a)]%
+        {PellegrinaRV19b}
+\bibfield{author}{\bibinfo{person}{L. Pellegrina},
+  \bibinfo{person}{M. Riondato}, {and} \bibinfo{person}{F. Vandin}.}
+  \bibinfo{year}{2019}\natexlab{a}.
+\newblock\showarticletitle{Hypothesis Testing and Statistically-sound Pattern
+  Mining}. In KDD'19.
+
+\bibitem[Pellegrina et~al\mbox{.}(2019b)]%
+        {PellegrinaRV19a}
+\bibfield{author}{\bibinfo{person}{L. Pellegrina},
+  \bibinfo{person}{M. Riondato}, {and} \bibinfo{person}{F. Vandin}.}
+  \bibinfo{year}{2019}\natexlab{b}.
+\newblock\showarticletitle{{SPuManTE}: Significant Pattern Mining with
+  Unconditional Testing}. In KDD'19.
+
+\bibitem[Pellegrina and Vandin(2020)]%
+        {PellegrinaV20}
+\bibfield{author}{\bibinfo{person}{L. Pellegrina} {and}
+  \bibinfo{person}{F. Vandin}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock\showarticletitle{Efficient mining of the most significant patterns
+  with permutation testing}.
+\newblock\bibinfo{journal}{\emph{DMKD}}
+  \bibinfo{volume}{34} (\bibinfo{year}{2020}), \bibinfo{pages}{1201--1234}.
+
+\bibitem[Stanley(2011)]%
+        {Stanley11}
+\bibfield{author}{\bibinfo{person}{R.~P. Stanley}.}
+  \bibinfo{year}{2011}\natexlab{}.
+\newblock\bibinfo{booktitle}{\emph{Enumerative Combinatorics}
+  (\bibinfo{edition}{2} ed.)}. Vol.~\bibinfo{volume}{1}.
+\newblock\bibinfo{publisher}{Cambridge University Press}.
+
+\bibitem[Tan et~al\mbox{.}(2004)]%
+        {TanKS04}
+\bibfield{author}{\bibinfo{person}{P.-N. Tan}, \bibinfo{person}{V.
+  Kumar}, {and} \bibinfo{person}{J. Srivastava}.}
+  \bibinfo{year}{2004}\natexlab{}.
+\newblock\showarticletitle{Selecting the right objective measure for
+  association analysis}.
+\newblock\bibinfo{journal}{\emph{Inf. Sys.}}  \bibinfo{volume}{29}
+  (\bibinfo{year}{2004}), \bibinfo{pages}{293--313}.
+
+\bibitem[Terada et~al\mbox{.}(2013)]%
+        {TeradaOHTS13}
+\bibfield{author}{\bibinfo{person}{A. Terada}, \bibinfo{person}{M.
+  Okada-Hatakeyama}, \bibinfo{person}{K. Tsuda}, {and} \bibinfo{person}{J.
+  Sese}.} \bibinfo{year}{2013}\natexlab{}.
+\newblock\showarticletitle{Statistical significance of combinatorial
+  regulations}.
+\newblock\bibinfo{journal}{\emph{PNAS}} \bibinfo{volume}{110}, \bibinfo{number}{32}
+  (\bibinfo{year}{2013}), \bibinfo{pages}{12996--13001}.
+
+\bibitem[Tonon and Vandin(2019)]%
+        {TononV19}
+\bibfield{author}{\bibinfo{person}{A. Tonon} {and} \bibinfo{person}{F.
+  Vandin}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock\showarticletitle{Permutation strategies for mining significant
+  sequential patterns}. In ICDM'19.
+
+\bibitem[Vreeken and Tatti(2014)]%
+        {VreekenT14}
+\bibfield{author}{\bibinfo{person}{J. Vreeken} {and}
+  \bibinfo{person}{N. Tatti}.} \bibinfo{year}{2014}\natexlab{}.
+\newblock\showarticletitle{Interesting patterns}.
+\newblock%
+In \bibinfo{booktitle}{\emph{Frequent pattern mining}}.
+  \bibinfo{publisher}{Springer}, \bibinfo{pages}{105--134}.
+
+\bibitem[Wasserman(2005)]%
+        {Wasserman05}
+\bibfield{author}{\bibinfo{person}{L. Wasserman}.}
+  \bibinfo{year}{2005}\natexlab{}.
+\newblock\bibinfo{booktitle}{\emph{All of Statistics: A Concise Course in
+  Statistical Inference}}.
+\newblock\bibinfo{publisher}{Springer}.
+
+\bibitem[Webb(2006)]%
+        {Webb06}
+\bibfield{author}{\bibinfo{person}{G.\ I. Webb}.}
+  \bibinfo{year}{2006}\natexlab{}.
+\newblock\showarticletitle{Discovering significant rules}. In KDD'06.
+
+\bibitem[Webb(2007)]%
+        {Webb07}
+\bibfield{author}{\bibinfo{person}{G.\ I. Webb}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock\showarticletitle{Discovering significant patterns}.
+\newblock\bibinfo{journal}{\emph{Mach.\ Learn.}} \bibinfo{volume}{68},
+  \bibinfo{number}{1} (\bibinfo{year}{2007}), \bibinfo{pages}{1--33}.
+
+\bibitem[Webb(2008)]%
+        {Webb08}
+\bibfield{author}{\bibinfo{person}{G.\ I Webb}.}
+  \bibinfo{year}{2008}\natexlab{}.
+\newblock\showarticletitle{Layered critical values: a powerful
+  direct-adjustment approach to discovering significant patterns}.
+\newblock\bibinfo{journal}{\emph{Mach.\ Learn.}} \bibinfo{volume}{71},
+  \bibinfo{number}{2--3} (\bibinfo{year}{2008}), \bibinfo{pages}{307--323}.
+
+\bibitem[Westfall and Young(1993)]%
+        {WestfallY93}
+\bibfield{author}{\bibinfo{person}{P.\ H. Westfall} {and}
+  \bibinfo{person}{S.\ S. Young}.} \bibinfo{year}{1993}\natexlab{}.
+\newblock\bibinfo{booktitle}{\emph{Resampling-Based Multiple Testing: Examples
+  and Methods for {p}-Value Adjustment}}.
+\newblock\bibinfo{publisher}{Wiley-Interscience}.
+
+\bibitem[Wu et~al\mbox{.}(2016)]%
+        {WuHGLZY16}
+\bibfield{author}{\bibinfo{person}{J. Wu}, \bibinfo{person}{Z. He},
+  \bibinfo{person}{F. Gu}, \bibinfo{person}{X. Liu},
+  \bibinfo{person}{J. Zhou}, {and} \bibinfo{person}{C. Yang}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock\showarticletitle{Computing exact permutation {$p$}-values for
+  association rules}.
+\newblock\bibinfo{journal}{\emph{Inf.\ Sci.}}  \bibinfo{volume}{346}
+  (\bibinfo{year}{2016}), \bibinfo{pages}{146--162}.
+
+\end{thebibliography}

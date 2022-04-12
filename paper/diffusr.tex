@@ -1,0 +1,103 @@
+\PassOptionsToPackage{pdfa,pdfapart=1,pdfaconformance=b}{hyperref}
+\documentclass[sigconf,review,anonymous]{acmart}
+
+\input{packages.tex}
+\input{macros.tex}
+
+\copyrightyear{2022}
+\acmConference[KDD '22]{28th ACM SIGKDD Conference on Knowledge Discovery and
+Data Mining}{August 14--18, 2022}{Washington, DC, USA}
+\setcopyright{rightsretained}
+% 20220129 MR: temporary to avoid an overfull hbox
+\acmDOI{10.1145/nnnnn.nnnnn}
+
+\begin{document}
+
+\title[\algoname: \titlefirstpart\ \titlesecondpart]{\texorpdfstring{\algoname: \titlefirstpart\\ \titlesecondpart}{\algoname: \titlefirstpart\ \titlesecondpart}}
+% Other title ideas:
+% Mining Statistically Significant Itemsets\\with Distortion-free Swap Randomization
+% Mining Statistically Significant Itemsets without Distortion
+
+\author{Alexander Lee}
+\affiliation{%
+  \department{Department of Computer Science}
+  \institution{Amherst College}
+  \streetaddress{Box \#2232, Amherst College}
+  \city{Amherst}
+  \state{MA}
+  \postcode{01002}
+  \country{USA}
+}
+\email{awlee22@amherst.edu}
+
+\author{Matteo Riondato}
+\orcid{0000-0003-2523-4420} %chktex 8
+\affiliation{%
+  \department{Department of Computer Science}
+  \institution{Amherst College}
+  \streetaddress{Box \#2232, Amherst College}
+  \city{Amherst}
+  \state{MA}
+  \postcode{01002}
+  \country{USA}
+}
+\email{mriondato@amherst.edu}
+
+\begin{teaserfigure}
+  \noindent\textit{``I'm big into aromatherapy''} --- Sharon Stone
+  \Description{Not a figure.}
+\end{teaserfigure}
+
+\input{abstract.tex}
+
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10002951.10003227.10003351</concept_id>
+       <concept_desc>Information systems~Data mining</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003752.10010061.10010065</concept_id>
+       <concept_desc>Theory of computation~Random walks and Markov chains</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002950.10003648.10003662.10003666</concept_id>
+       <concept_desc>Mathematics of computing~Hypothesis testing and confidence interval computation</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002950.10003648.10003670.10003677.10003679</concept_id>
+       <concept_desc>Mathematics of computing~Metropolis-Hastings algorithm</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Information systems~Data mining}
+\ccsdesc[500]{Theory of computation~Random walks and Markov chains}
+\ccsdesc[500]{Mathematics of computing~Hypothesis testing and confidence interval computation}
+\ccsdesc[500]{Mathematics of computing~Metropolis-Hastings algorithm}
+
+% Separate the keywords with commas.
+\keywords{Frequent Patterns, Itemsets, Family-Wise Error Rate}
+
+\maketitle
+
+\input{intro.tex}
+\input{related.tex}
+\input{prelims.tex}
+\input{algo.tex}
+\input{exper.tex}
+\input{concl.tex}
+
+%\bibliographystyle{ACM-Reference-Format}
+%\bibliography{statseqpat.bib}
+\input{biblio.tex}
+
+\clearpage % new page in two-columns layout
+\appendix
+\input{appendix.tex}
+
+\end{document}

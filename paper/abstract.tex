@@ -1,0 +1,18 @@
+%! TEX root = diffusr.tex
+\begin{abstract}
+
+  We present \algo, a set of algorithms for drawing transactional datasets from
+  a null model, to be used for the statistical validation of knowledge discovery
+  results. Our algorithms assume the widely-adopted null model that maintains
+  transaction lengths and item supports, and they are based on swap
+  randomization, i.e., randomly swapping items between transactions, in a
+  Markov-Chain Monte-Carlo (MCMC) setting, using Metropolis-Hastings. In
+  contrast with previous work, our approach does not suffer from the distortion
+  of the null space introduced by identifying the set of transactional datasets
+  with the set of binary matrices, which could lead to unknown false positives
+  in the output. \algo\ uses carefully-designed Markov chains with appropriate
+  stationary distributions to sample datasets from the null model. The results
+  of our experimental evaluation show that \algo\ solves the distortion issue,
+  is fast and (empirically) rapidly-mixing, and scales well as the dataset size
+  grows.
+\end{abstract}

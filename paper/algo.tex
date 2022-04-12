@@ -1,0 +1,468 @@
+%! TEX root = diffusr.tex
+
+\section{Sampling datasets: Existing method}\label{sec:gionis}
+
+\Citet{GionisMMT07} introduce an algorithm (which we refer to as \gioalgo) for
+sampling \emph{uniformly} at random from a set $\matrices$ of \emph{binary
+matrices}. For ease of presentation in this subsection, we limit ourselves to the
+uniform distribution over $\matrices$, but all that we say here can be extended
+to a generic distribution over $\matrices$. The basis for presenting \gioalgo\ as
+an algorithm for sampling \emph{datasets} from a SLISP null model $\nullmodel =
+(\nullset, \uniform{\nullset})$ for an observed dataset $\odataset$ is the
+\emph{unstated assumption} that there is \emph{always} a \emph{bijection}
+between $\nullset$ and the set $\matrices$ of binary matrices from which
+\gioalgo\ samples. We show (\cref{lem:wrongsampling}) that \emph{the assumption
+is false}, and \gioalgo\ samples datasets from a ``distorted'' null model with a
+probability distribution that is not necessarily uniform.
+
+\paragraph{Datasets as matrices} We first must give some more detail about
+\gioalgo. This algorithm implicitly assumes that datasets, rather than being
+\emph{bags} of transactions, are \emph{sequences}, i.e., the transactions in
+them have a fixed \emph{order}. We refer to datasets seen as sequences with the
+term ``seq-datasets''. Clearly, since there are many possible orderings of the
+transactions of a dataset, multiple seq-datasets may correspond to the same
+dataset. This assumption allows to define a bijection that maps any seq-dataset
+$\dataset = \langle t_1, \dotsc, t_\rowsnum \rangle$ with $\rowsnum$
+transactions built on the alphabet $\items = \{1, \dotsc, \colsnum\}$ of items
+to one and only one binary matrix $ M_\dataset \in {\{0, 1\}}^{\rowsnum \times
+  \colsnum}$ with $\rowsnum$ rows and $\colsnum$ columns by setting the entry
+  $M_\dataset(i,j)$ to 1 iff $j \in t_i$, $1 \le j \le \colsnum$, $1 \le i \le
+  \rowsnum$. For example, assuming $\items = \{1, 2, 3\}$, the seq-dataset
+\begin{equation}\label{eq:sampledataset}
+  \dataset' = \langle \{1, 2\}, \{1, 3\}, \{3\} \rangle
+\end{equation}
+is mapped to the matrix
+\begin{equation}\label{eq:sampledatasetmatrix}
+  M_{\dataset'} = \left[
+  \begin{array}{ccc}
+    1 & 1 & 0 \\
+    1 & 0 & 1 \\
+    0 & 0 & 1
+  \end{array}
+  \right] \enspace.
+\end{equation}
+Given an observed dataset $\odataset$, \gioalgo\ maps it to a seq-dataset
+$\odataset'=\langle t_1, \dotsc, t_\rowsnum\rangle$ by arbitrarily choosing an
+order for the transactions in $\odataset$. \gioalgo\ then defines the set
+$\matrices \subseteq {\{0, 1\}}^{\rowsnum \times \colsnum}$ of all $\rowsnum
+\times \colsnum$ binary matrices $M$ such that
+\begin{itemize}
+  \item for $1 \le i \le \rowsnum$, $\rowsum{i} \doteq \sum_{j=1}^\colsnum M(i,j)
+    = \card{t_i}$, i.e., the \emph{row-sum $\rowsum{i}$} (that is, the number of
+    $1$'s in row $i$) equals the length of the transaction $t_i$; and
+  \item for $1 \le j \le \colsnum$, $\colsum{j} \doteq \sum_{i=1}^\rowsnum M(i,j) =
+    \supp{\odataset}{\{j\}}$, i.e., the \emph{column-sum $\colsum{j}$} (that is,
+    the number of $1$'s in column $j$) equals the support of item $j$ in
+    $\odataset$.
+\end{itemize}
+The set $\matrices$ depends on both $\odataset$ and the chosen ordering of its
+transactions to obtain the seq-dataset $\odataset'$.
+
+\paragraph{Swap randomization} \gioalgo\ samples from $\matrices$ uniformly at
+random using the MCMC approach with MH (\cref{sec:prelims:markov}). The state
+space is $\matrices$ and there is an edge from matrix $M'$ to matrix $M''$ if
+there are two row indices $1 \le r_1, r_2 \le \rowsnum$ and two column indices
+$1 \le c_1, c_2 \le \colsnum$ such that $M'(r_1, c_1) = 1$, $M'(r_1, c_2) = 0$,
+$M'(r_2,c_1) = 0$, $M'(r_2,c_2)=1$, and $M''$ can be obtained from $M'$ by
+setting  $M'(r_1, c_1) = 0$, $M'(r_1, c_2) = 1$, $M'(r_2,c_1) = 1$, and
+$M'(r_2,c_2)=0$, i.e., by performing a single \emph{swap}. The distribution
+$\neighprob_M$ is the uniform over the out-neighbors of $M \in \matrices$, i.e.,
+$\neighprob_M(M') \doteq 1 / \totspairsnummat{M}$, where $\totspairsnummat{M}$
+of is the number of out-neighbors of $M$. \citet[Alg.\ 2, Thm.\
+4.3]{GionisMMT07} give procedures to draw a neighbor according to $\neighprob_M$,
+and to compute $\totspairsnummat{M}$, $M \in \matrices$, which are needed by
+MH\@. We use this result in our algorithms, so we report it here for
+self-containedness.
+
+\begin{theorem}[\lbrack\citealp{GionisMMT07}, Thm.\ 4.3\rbrack]\label{thm:totspairsnummat}
+  Let $M_{\dataset}$ be a matrix representation of $\dataset$, and let
+  $\squaredmat = M_{\dataset} M_{\dataset}^\intercal$. Then
+  \begin{equation}\label{eq:totspairsnummat}
+    \totspairsnummat{M_{\dataset}} = \dpairsnum{\dataset} -
+    \zstructsnum{\dataset} + \kttsnum{M_{\dataset}},
+  \end{equation}
+  where
+  \begin{align*}
+    \dpairsnum{\dataset} &\doteq \frac{1}{2} \left( \left( 1 +
+    \sum_{t \in \dataset} \card{t} \right) \sum_{t \in \dataset}
+    \card{t} - \sum_{t \in \dataset} \card{t}^2 - \sum_{i \in \items}
+    {(\supp{\dataset}{\{i\}})}^2 \right),\\
+    \zstructsnum{\dataset} &\doteq \sum_{t \in \dataset} \sum_{i \in t} [
+    (\card{t} - 1) (\supp{\dataset}{\{i\}} -1) ],\ \text{and}\\
+    \kttsnum{M_{\dataset}} &\doteq \sum_{k = 1}^{\rowsnum} \sum_{\ell
+    =1}^{k-1} [{(\squaredmat(\ell, k))}^2 - \squaredmat(\ell, k) ] \enspace.
+  \end{align*}
+\end{theorem}
+
+A run of the chain can be seen as a sequence of swaps, hence the name \emph{swap
+randomization} for the approach taken by \gioalgo. Define the surjective
+function $\mattodat{\cdot}$ from $\matrices$ to the null set $\nullset$ of the
+SLISP null model for $\odataset$, which maps $M \in \matrices$ to the
+\emph{unique} dataset obtained by considering as a bag the seq-dataset
+mapped to $M$. After a sufficient number of swaps, the state $M$ of the
+chain is distributed uniformly \emph{among $\matrices$}, and the dataset
+$\mattodat{M}$ is returned as a sample from $\nullset$. We show the following
+(proof in \cref{sec:missingproofs}).
+
+\begin{lemma}\label{lem:wrongsampling}
+  There exists an observed dataset $\odataset$ such that, if we let $M$ be a
+  matrix drawn uniformly at random from $\matrices$, then $\mattodat{M}$ is not
+  chosen uniformly at random from $\nullset$.
+\end{lemma}
+
+\Cref{lem:wrongsampling} says that, if one wants to sample datasets from a SLISP
+null model $\nullmodel=(\nullset,\nullprob)$, the samples obtained by using
+\gioalgo\ are actually drawn from a \emph{distorted} null model
+$\wiggly{\nullmodel}=(\nullset, \wiggly{\nullprob})$, where $\wiggly{\nullprob}
+\neq \nullprob$. As discussed in \cref{sec:prelims:significant}, these samples
+are intended to be used to compute key quantities ($p$-values and adjusted
+critical values) for evaluating the significance of results w.r.t.\
+$\nullmodel$, but given that they are not distributed according to $\nullprob$,
+any conclusion drawn using these samples could potentially be wrong. In the next
+section, we introduce \algo, our suite of algorithms to sample datasets from
+SLISP null models \emph{without distortion}.
+
+Before moving on, we mention that the root cause of the distortion is,
+informally, the choice to consider the order of the transactions in a dataset as
+meaningful for knowledge discovery tasks, when it is not: these tasks are
+effectively defined on datasets seen as \emph{unordered} bags of transactions.
+Transaction identifiers are irrelevant for most knowledge discovery tasks. E.g.,
+no pattern mining algorithm requires such identifiers. Thus, there is no reason
+to require the order of transactions to be fixed, and a null model that does not
+impose this constraint is more appropriate for mining results from transactional
+datasets than one that does.
+
+\section{Sampling without distortion}\label{sec:diffusr}
+
+\subsection{A first algorithm}\label{sec:diffusr:naive}
+
+To warm up, we first present $\naivealgo$ (the \textsc{N} stands for
+``na\"{\i}ve''), a relatively simple algorithm to sample \emph{without
+distortion} from a SLISP null model $\nullmodel = (\nullset,\nullprob)$
+associated to an observed dataset $\odataset$. \naivealgo\ uses MCMC with MH to
+sample from $\matrices$, the set of binary matrices also considered by \gioalgo\
+(\cref{sec:gionis}). The neighborhood structure over $\matrices$ is the same as
+in \gioalgo, as is the distribution $\neighprob_M$, $M \in \matrices$, which is
+the uniform distribution over the out-neighbors of $M$. The intuition behind
+\naivealgo\ is that, if, for each dataset $\dataset \in \nullset$, we can
+compute the number $\copiesnum{\dataset}$ of matrices $M \in \matrices$ such
+that $\mattodat{M} = \dataset$, then we can remove the distortion that the
+presence of these ``copies'' introduces. The following result gives the
+expression for $\copiesnum{\dataset}$ (proof in \cref{sec:missingproofs}).
+
+\begin{lemma}\label{lem:numcopies}
+  For any dataset $\dataset \in \nullset$, let $L_\dataset \doteq \{\ell_1,
+  \dotsc, \ell_{z_\dataset}\}$ be the set of the $z_\dataset$ distinct lengths
+  of the transactions in $\dataset$. For each $1 \le i \le z_\dataset$, let
+  $T_i$ be the \emph{bag} of transactions of length $\ell_i$ in $\dataset$.
+  Let $\bar{T}_i = \{\tau_{i,1}, \dotsc, \tau_{i,h_i}\}$ be the \emph{set} of
+  transactions of length $\ell_i$ in $\dataset$, i.e., without duplicates. For
+  each $1 \le j \le h_i$, let $W_{i,j} \doteq \{ t' \in T_i \suchthat  t' =
+  \tau_{i,j} \}$ be the \emph{bag} of transactions equal to $\tau_{i,j}$ in
+  $T_i$ (including $\tau_{i,j}$). Then, the number of matrices $M$ in
+  $\matrices$ such that $\mattodat{M} = \dataset$ is
+  \begin{equation}\label{eq:copiesnum}
+    \copiesnum{\dataset} \doteq \prod_{i=1}^{z_\dataset}
+    \underbracket{\binom{\card{T_i}}{\card{W_{i,1}}, \dotsc,
+    \card{W_{i,h_i}}}}_{\text{multinomial coefficient}}
+    = \prod_{i=1}^{z_\dataset} \frac{\card{T_i}!}{\prod_{j=1}^{h_i}
+    \card{W_{i,j}}!} \enspace.
+  \end{equation}
+\end{lemma}
+
+The core idea of \naivealgo\ is that the probability $\nullprob(\dataset)$ of
+sampling $\dataset$ should be ``spread'' among the $\copiesnum{\dataset}$
+matrices $M \in \matrices$ s.t.\ $\mattodat{M} = \dataset$. Thus, \naivealgo\
+uses MCMC with MH on the state space $\matrices$, but with the desired stationary
+distribution
+\begin{equation}\label{eq:naivestatprob}
+  \samplprob(M) \doteq \frac{\nullprob(\mattodat{M})}{\copiesnum{\mattodat{M}}}
+    \enspace.
+  \end{equation}
+As mentioned, the probability distribution over the out-neighbors of a matrix is
+the uniform as in \gioalgo, so \naivealgo\ can also reuse \gioalgo's
+procedure to sample an out-neighbor $M''$ of a matrix $M'$~\citep[Alg.\
+2]{GionisMMT07}. Computing $\copiesnum{\mattodat{M''}}$ using
+$\copiesnum{\mattodat{M'}}$ is relatively straightforward (see
+\cref{sec:copiesnum}), knowing the swap that allows to obtain $M''$ from $M'$,
+thus only the number of copies for the initial state $X_0$ corresponding to
+$\odataset$ has to be computed from scratch using the definition
+in~\eqref{eq:copiesnum}.
+
+\naivealgo\ obtains a matrix $M$ by running MCMC sampling with MH with the
+inputs just described, and outputs the dataset $\mattodat{M}$. The proof of the
+following result is in \cref{sec:missingproofs}.
+
+\begin{theorem}\label{thm:correctnaive}
+  The output of \naivealgo\ is a sample from $\nullset$ distributed according to
+  $\nullprob$.
+\end{theorem}
+
+\subsection{A refined algorithm}\label{sec:diffusr:refined}
+
+We now discuss a more refined algorithm \refalgo\ (the \textsc{R} is for
+``refined'') to sample datasets from a SLISP null model $\nullmodel = (\nullset,
+\nullprob)$. \refalgo\ is also based on MCMC sampling with MH, but uses a Markov
+chain with a different state space and neighborhood structure than \gioalgo\ and
+\naivealgo.
+
+\refalgo\ \emph{directly} removes the distortion from the state space, rather
+than counteracting it at the level of the stationary distribution of the Markov
+chain like \naivealgo\ does.
+
+The state space of $\refalgo$ is the dataset null set $\nullset$ itself, without
+any representation of the datasets as matrices or imposition of ordering of the
+transactions in a dataset which  is irrelevant for many knowledge discovery
+tasks (see end of \cref{sec:gionis}).
+
+% 20220124 MR: We keep this for the journal version.
+%\todo[for=Everybody,date=12/11]{Consider the possibility of allowing swaps
+%  between transactions that differ in length by one, where only one item moves,
+%from the longer to the shorter.}
+
+In the initial neighborhood structure, there is an edge from a dataset $\dataset' \in
+\nullset$ to another dataset $\dataset'' \in \nullset$ if there exist two transactions
+$t_a, t_b \in \dataset'$ such that \textit{(1)} neither $t_a \setminus t_b$ nor
+$t_b \setminus t_a$ are empty, and at least one of these two asymmetric set
+differences contains strictly more than one item; and \textit{(2)}
+there are items $a \in t_a \setminus t_b$ and $b \in t_b \setminus
+t_a$ such that if we let $\bar{t}_a \doteq (t_a \setminus \{a\}) \cup \{b\}$
+and $\bar{t}_b \doteq (t_b \setminus \{b\}) \cup \{a\}$, then it holds that
+$\dataset'' = ( \dataset' \setminus \{t_a, t_b\} ) \cup \{ \bar{t}_a, \bar{t}_b
+\}$, i.e., $\dataset''$ can be obtained from $\dataset'$ by swapping a pair of
+items between two transactions that are not one a subset (proper or improper) of
+the other, and each of which contains only one of the two items. This operation
+can be seen as a \emph{dataset-oriented} version of the \emph{swap} at the basis
+of the swap randomization process used by \gioalgo, thus we still refer to it as
+\emph{swap}. A swap can be identified as an unordered pair $((t_a,a), (t_b,b))$.
+The condition on one of the asymmetric set differences containing strictly more
+than one item ensures that a swap always ``leads'' to a different dataset, i.e.,
+there are no swaps from $\dataset'$ to $\dataset'$. On the other hand, there may
+be multiple swaps that lead from $\dataset'$ to a different $\dataset''$. We
+denote the number of such swaps with $\spairsnum{\dataset'}{\dataset''}$ and
+show, in \cref{lem:spairsnum,corol:spairsnumneigh}, expressions for this
+quantity and for $\spairsnum{\dataset''}{\dataset'}$ respectively, as both are
+needed by \refalgo, as we explain later.
+
+For any $t_1, t_2 \in \dataset'$, let $\spairsfactor(t_1,t_2)\doteq 2$ if
+$\card{t_1} = \card{t_2}$ and $\card{t_1 \setminus t_2} = \card{t_2 \setminus
+t_1} = 2$, and $\spairsfactor(t_1,t_2) \doteq 1$ otherwise.
+
+\begin{lemma}\label{lem:spairsnum}
+  Let $((t_a,a), (t_b,b))$ be a swap from $\dataset'$ to $\dataset''$. Then,
+  \[
+    \spairsnum{\dataset'}{\dataset''} = \spairsfactor(t_a,t_b) \card{\{t \in
+    \dataset' \suchthat t = t_a\}} \cdot \card{\{t \in \dataset' \suchthat t =
+     t_b\}} \enspace.
+  \]
+\end{lemma}
+
+The proof is in \cref{sec:missingproofs}.
+
+\begin{corollary}\label{corol:spairsnumneigh}
+  Let $((t_a,a), (t_b,b))$ be a swap from $\dataset'$ to $\dataset''$, and
+  $\bar{t}_a \doteq (t_a \setminus \{a\}) \cup \{b\}$ and $\bar{t}_b \doteq (t_b
+  \setminus \{b\}) \cup \{a\}$. Then, $\spairsnum{\dataset''}{\dataset'}$
+    $= \spairsfactor(t_a,t_b)
+    (\card{\{t \in \dataset' \suchthat t = \bar{t}_a\}} + 1)  (\card{\{t \in
+    \dataset' \suchthat t = \bar{t}_b\}} + 1)$.
+\end{corollary}
+
+We need the following result on the number of valid swaps from a dataset
+$\dataset$. The proof is in \cref{sec:missingproofs}.
+
+\begin{theorem}\label{thm:totspairsnumdat}
+  Let $M_\dataset$ be any matrix representation of $\dataset$
+  (\cref{sec:gionis}). Then,
+  \begin{equation}\label{eq:totspairsnumdat}
+    \totspairsnumdat{\dataset} =
+    \underbracket{\totspairsnummat{M_\dataset}}_{\text{\cref{thm:totspairsnummat}}}
+    - \selfspairsnum{\dataset},
+  \end{equation}
+  \begin{align}
+    &\textit{where}\ \selfspairsnum{\dataset} \doteq \nonumber\\
+    &\frac{1}{2} \card{\{ (t_a,t_b) \in \dataset
+    \times \dataset \suchthat \card{t_a} = \card{t_b} \wedge
+    \card{t_a \setminus t_b} = \card{t_b \setminus t_a} = 1\}} \enspace.\label{eq:selfspairsnum}
+  \end{align}
+\end{theorem}
+
+\refalgo\ uses MCMC sampling with MH to sample according to $\nullprob$. Let
+$\dataset' \in \nullset$ be the current state of the chain. The
+distribution $\neighprob_{\dataset'}$,  according to
+which MH samples a neighbor $\dataset''$ of $\dataset'$ is
+\begin{equation}\label{eq:refinedneighprob} \neighprob_{\dataset'}(\dataset'')
+\doteq \frac{\spairsnum{\dataset'}{\dataset''}}{\totspairsnumdat{\dataset'}}
+\enspace. \end{equation}
+Sampling a neighbor of $\dataset'$ according to the distribution
+$\neighprob_{\dataset'}$ is straightforward.
+% 20220124 MR: commenting out as it doesn't seem to add much. We'll add it back
+% in the journal version and in the thesis.
+%(see \cref{sec:samplerefinedneighprob}).
+Let $\spairs$ be the bag of ordered pairs $(t,i)$ for every $t \in \dataset'$
+and $i \in t$. We can draw two pairs $(t_a, a)$ and $(t_b, b)$ independently and
+uniformly at random from $\spairs$ and check whether the unordered pair $((t_a,
+a), (t_b, b))$ is a valid swap, i.e., it satisfies all the requirements for
+$t_a$, $t_b$, $a$, and $b$ in the definition of a swap (there are pairs that are
+not valid swaps, e.g., those involving the same transaction). In this case the
+sampled neighbor $\dataset''$ is the one obtained by performing the swap,
+otherwise two more elements are drawn from $\spairs$ until a valid swap is
+found.
+
+\begin{lemma}\label{lem:sampleneighbor}
+  Let $\dataset''$ be a neighbor of $\dataset' \in \nullset$. The probability
+  that the above procedure outputs $\dataset''$ is
+  $\neighprob_{\dataset'}(\dataset'')$ (proof in \cref{sec:missingproofs}).
+\end{lemma}
+
+Assuming the current state of the Markov chain is $\dataset'$, by plugging the
+definition of $\neighprob_{\dataset'}$ from~\eqref{eq:refinedneighprob}
+into~\eqref{eq:metropolis} (using $\samplprob=\nullprob$), we get that the
+probability MH accepts as the next state a neighbor $\dataset''$ drawn
+according to $\neighprob_{\dataset'}$ is
+\begin{equation}\label{eq:refinedacceptprob} \min \left\{1,
+    \frac{\nullprob(\dataset'') \spairsnum{\dataset''}{\dataset'}
+\totspairsnumdat{\dataset'}}{\nullprob(\dataset')
+\spairsnum{\dataset'}{\dataset''}
+\totspairsnumdat{\dataset''}} \right\} \enspace.
+\end{equation}
+\refalgo\ needs data structures and procedures to compute all the necessary
+quantities. More precisely, \refalgo\ initializes some data structures at the
+beginning of its execution, and uses and updates them to select the successive
+states of the Markov chain  (which starts at $\odataset)$. First, the bag
+$\spairs \doteq \{ (t,i) \suchthat t \in \dataset', i \in t\}$ is built in the
+obvious way, with $\dataset' = \odataset$. This bag is all that is needed to
+sample a neighbor from the current state $\dataset'$ according to the
+distribution $\neighprob_{\dataset'}$. Updating $\spairs$ after moving to a new
+state $\dataset''$ is straightforward: only pairs involving the transactions
+participating in the performed swap are removed (for the transactions before the
+swap) or added (for the transactions after the swap). Secondly, \refalgo\ builds
+a dictionary $\hashmapsym$ s.t.\ for each transaction $t \in \odataset$, \[
+\hashmap{t} \doteq \card{\{t' \in \odataset \suchthat t' = t\}} \] is the
+number of transactions in $\odataset$ equal to $t$, including $t$. Computing
+$\spairsnum{\dataset'}{\dataset''}$ and $\spairsnum{\dataset''}{\dataset'}$ for
+any dataset $\dataset'$ and any $\dataset''$ of its neighbors is
+straightforward using the expressions of these quantities from
+\cref{lem:spairsnum,corol:spairsnumneigh} and the dictionary $\hashmapsym$.
+Updating $\hashmapsym$ after moving to a new state is easy, requiring changes
+only to the key-value pairs where the key is a transaction involved in the swap,
+either before or after the swap. The last quantities to discuss are
+$\totspairsnummat{M_{\dataset'}}$ and $\selfspairsnum{\dataset'}$
+from~\eqref{eq:totspairsnumdat}. \Citet[Thm.\ 4.3, Corol.\ 4.4]{GionisMMT07}
+give procedures to compute $\totspairsnummat{M_{\dataset'}}$ and, using this
+quantity, $\totspairsnummat{M_{\dataset''}}$, thus we can focus on
+$\selfspairsnum{\dataset'}$ and how to obtain $\selfspairsnum{\dataset''}$ from
+it. Let $\textsf{TL}$ be a dictionary that maps each different $\ell \in
+\mathbb{N}$ for which there is at least one transaction $t \in \odataset$ with
+$\card{t} = \ell$ to the \emph{bag} of transactions in $\odataset$ with length
+$\ell$. Initializing this data structure given $\odataset$ is straightforward,
+and at the same time one can also compute $\selfspairsnum{\odataset}$.  Given
+$\mathsf{TL}$ and $\selfspairsnum{\dataset'}$ for the current state $\dataset'$,
+we can compute $\selfspairsnum{\dataset''}$ for a neighbor $\dataset''$ obtained
+by performing a swap $((t_a,a),(t_b,b))$ from $\dataset'$ as follows (pseudocode
+in \cref{algo:getselfspairsnumneigh}). First, a variable $z$ is
+initialized to $\selfspairsnum{\dataset'}$ (\cref{algline:zinit}). Then, for
+each $t \in \{t_a,t_b\}$ we iterate over $\mathsf{TL}[\card{t}] \setminus
+\{t_a,t_b\}$, i.e., the bag of transactions of length $\card{t}$ that are
+neither $t_a$ nor $t_b$. Let $t^*$ be a transaction in this bag, and let $d^*$ be
+$\card{(t \setminus t^*) \cup (t^* \setminus t)}$, i.e., the number of items
+that are either only in $t$ or only in $t^*$ (\cref{algline:dinit}). Then, the
+algorithm checks if $d^*$ is not larger than four
+(\cref{algline:notmorethanfour}): when $d^* > 4$, then there is no
+self-swap involving $t$ and $t^*$ from $\dataset'$ to itself, nor there is one
+from $\dataset''$ to itself, thus there is nothing to do in this case. If
+instead $d^* \le 4$, the procedure computes the number of items that are
+either only in $t^*$ or in the transaction $\bar{t}$ obtained from $t$ after
+the swap (i.e., if $t = t_a$, then $\bar{t} = (t_a \setminus \{a\}) \cup
+\{b\}$, and similarly if $t = t_b$): for each $i \in \{a,b\}$
+(\cref{algline:foreachitem}), if $i$ appears in both $t$ and $t^*$ or does not
+appear in either, then $d$ is increased by one (\cref{algline:bothorneither}),
+as that means that $i$ will appear in exactly one of $\bar{t}$ and $t^*$ after
+the swap, otherwise $d$ is decreased by one (\cref{algline:decrease}), because
+$i$ will either appear or not appear in both $\bar{t}$ and $t^*$ after the
+swap. Then, if $d$ equals $2$ (resp.\ is not equal to $2)$ and $d^*$ is not
+equal to $2$ (resp.\ equals $2$), it means that there is an additional (resp.\
+one fewer) invalid self-swap that would lead from $\dataset''$ to itself, and
+the variable $z$ is updated accordingly
+(lines~\ref{algline:zplusone}--\ref{algline:zminusone}).
+
+\begin{algorithm}[htb]
+  \caption{Computing $\selfspairsnum{\dataset''}$ from
+  $\selfspairsnum{\dataset'}$}\label{algo:getselfspairsnumneigh}
+  \DontPrintSemicolon%
+  \SetKwData{TransactionsOfLength}{TL}
+  \KwIn{Value $\selfspairsnum{\dataset'}$, valid swap $((t_a,a),(t_b,b))$ from
+  $\dataset'$ to $\dataset''$, dictionary $\TransactionsOfLength$}
+  \KwOut{$\selfspairsnum{\dataset''}$}
+  $z \gets \selfspairsnum{\dataset'}$\;\label{algline:zinit}
+  \ForEach{$t \in \{t_a, t_b\}$}{
+    \ForEach{$t^* \in \TransactionsOfLength[\card{t}] \setminus \{t_a, t_b\}$}{\label{algline:tlloop}
+      $d^* \gets \card{(t \setminus t^*) \cup (t^* \setminus t)}$\;\label{algline:dinit}
+      \If{$d^* \le 4$}{\label{algline:notmorethanfour}
+        $d \gets d^*$\;
+        \ForEach{$i \in \{a,b\}$}{\label{algline:foreachitem}
+          \lIf{$i \in t \cap t^* \vee i \notin t \cup t^*$}{$d \gets d +
+            1$}\label{algline:bothorneither}
+          \lElse{$d \gets d - 1$}\label{algline:decrease}
+        } % end \ForEach{$i \in \{a,b\}$}
+        \lIf{$d = 2 \wedge d^* \neq 2$}{$z \gets z +
+          1$}\label{algline:zplusone}
+        \lElseIf{$d \neq 2 \wedge d^* = 2$}{$z \gets z -
+        1$}\label{algline:zminusone}
+      } % end \If{$d > 4$}
+    } % end ForEach{$t^* \in \TransactionsOfLength[\card{t}]$}
+  } % end ForEach{$t \in \{t_a, t_b\}$}
+  \Return{$z$}
+\end{algorithm}
+
+\subsection{Extensions and discussion}\label{sec:extensions}
+
+In \cref{sec:exper}, we use \algo\ to test the significance of the number
+$\card{\fis{\thresh}{\odataset}}$ of frequent itemsets (as described in
+\cref{sec:prelims:significant}). This is a relatively simple task that we choose
+to make the presentation self-contained and accessible: our algorithms can be
+used for assessing the statistical significance of the results of many other
+tasks defined on transactional datasets, including significant pattern
+mining~\citep{PellegrinaRV19b}. \citet{HamalainenW19} discuss many such tasks,
+as do \citet{GionisMMT07}, who show how to use \gioalgo\ for them. \algo\ can be
+used as a drop-in replacement of \gioalgo\ in these cases.
+
+Algorithms for sampling different kinds of datasets for knowledge discovery
+tasks also incur a distortion of the sample space similar to the one we
+discussed for \gioalgo. For example, \citet{TononV19} present
+swap-randomization methods to draw \emph{sequential} datasets (approximately)
+uniformly at random from a model, which are then used for mining significant
+frequent sequences. Their sampling methods, being similar to \gioalgo, suffer
+from a similar distortion. It is straightforward to develop variants of \algo\
+for sampling sequential datasets, but due to space limitations we defer them to
+the extended version of this work. Similar extensions should also be possible
+for other kinds of patterns.
+
+A transactional dataset $\dataset$ can be seen as a bipartite graph $G_\dataset$
+with one vertex for each item $i \in \items$ on one side, and one vertex for
+each transaction $t \in \dataset$ on the other side, and such that there is an
+edge $(i,t)$ iff $i \in t$ \citep[Sect.\ 4.1]{GionisMMT07}. \gioalgo\ can be
+seen as an algorithm for sampling, uniformly, bipartite graphs with the same
+degree distribution as $G_\dataset$. In this setting, the distortion means that
+two bipartite graphs that are identical up to permutations of the identifiers of
+the transaction vertices (a weak form of graph isomorphism) would be considered
+different graphs, which may or may not be desired by the user, who is the
+ultimate decision maker and should be made aware of the consequences of choosing
+different null models. \algo\ can be used to fix this distortion.
+
+One limitation of this work is that we do not show an upper bound to the
+\emph{mixing time} $\mathsf{t}(\varepsilon$), $\varepsilon \in (0,1)$ of the
+Markov chains of our algorithms, i.e., the number of steps needed for the
+distribution of the state $X_t$ to have total variation distance at most
+$\varepsilon$ from the desired stationary distribution
+$\nullprob$~\citep[Ch.\ 10]{MitzenmacherU05}. Such a bound is not available for
+\gioalgo\ either, because using the MH approach makes such a derivation
+particularly challenging. We conjecture that better bounds to
+$\mathsf{t}(\varepsilon)$ can be derived for \refalgo\ than for \naivealgo,
+thanks to its smaller and more connected state space.
+
+Another limitation, in common with all previous work, is in the definition of
+the SLISP null model: while preserving the size, transaction lengths, and item
+supports is crucial, it may not be sufficient for the null set $\nullset$ to be
+representative of the unknown process. Defining more descriptive null models and
+efficient procedures to sample from them is a interesting research direction.
